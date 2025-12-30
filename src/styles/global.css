@@ -1,0 +1,29 @@
+:root {
+  --bg: #0b0b0b;
+  --bg-soft: #121212;
+  --text: #eaeaea;
+  --text-muted: #9a9a9a;
+  --accent: #6366f1;
+
+  --font-main: 'Inter', system-ui, sans-serif;
+}
+
+[data-theme="light"] {
+  --bg: #f7f7f7;
+  --bg-soft: #ffffff;
+  --text: #111111;
+  --text-muted: #555555;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-main);
+}
