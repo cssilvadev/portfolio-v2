@@ -1,5 +1,5 @@
 :root {
-  --bg: #0b0b0b;
+  --bg: #000000;
   --bg-soft: #121212;
   --text: #eaeaea;
   --text-muted: #9a9a9a;
@@ -11,7 +11,7 @@
 [data-theme="light"] {
   --bg: #f7f7f7;
   --bg-soft: #ffffff;
-  --text: #111111;
+  --text: #000000;
   --text-muted: #555555;
 }
 
