@@ -24,9 +24,18 @@
 
 .logo {
   font-weight: 800;
-  letter-spacing: 0.1em;
+  font-size: 0.95rem;
+  letter-spacing: 0.15em;
+
   color: var(--text);
+  opacity: 1;
+
+  z-index: 1;
+  position: relative;
+
+  user-select: none;
 }
+
 
 .nav-links {
   display: flex;
@@ -52,3 +61,4 @@
   color: var(--text);
   transition: color 0.3s ease;
 }
+

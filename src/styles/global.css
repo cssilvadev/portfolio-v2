@@ -27,3 +27,11 @@ html, body, #root {
   color: var(--text);
   font-family: var(--font-main);
 }
+
+:root {
+  --cursor-color: #ffffff; /* cursor branco no dark */
+}
+
+[data-theme="light"] {
+  --cursor-color: #000000; /* cursor preto no light */
+}
