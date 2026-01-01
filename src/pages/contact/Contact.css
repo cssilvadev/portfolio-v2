@@ -44,6 +44,7 @@
   align-items: start;
   padding-left: 2rem;
   padding-right: 2rem;
+  padding-bottom: 4rem; /* <<< adiciona espaço extra embaixo */
 }
 
 /* COLUNA ESQUERDA */
@@ -95,9 +96,10 @@
 
 .contact-socials {
   display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  flex-direction: row;  /* horizontal */
+  gap: 1rem;            /* distância entre os links */
 }
+
 
 .social-link {
   display: flex;
@@ -174,7 +176,7 @@
 }
 
 .contact-form button:hover {
-  background: #4f54d0;
+  background: #ff0000;
 }
 
 /* RESPONSIVIDADE */
