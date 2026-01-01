@@ -1,0 +1,20 @@
+.about {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+
+.section-title {
+  font-size: 3rem;
+  letter-spacing: 0.15em;
+}
+
+.about-content {
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+.muted {
+  margin-top: 1.5rem;
+  color: var(--text-muted);
+}
