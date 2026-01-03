@@ -1,4 +1,123 @@
-.projects {
-  padding: 6rem 8vw;
-  min-height: 100vh;
+/* =========================
+   TÍTULO DA SEÇÃO
+========================= */
+.projects-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 4rem;
+  padding-left: 20rem;
+}
+
+.projects-header h2 {
+  font-size: clamp(2.5rem, 5vw, 3rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  margin: 0;
+}
+
+.projects-header-line {
+  width: 70%;
+  height: 3px;
+  background-color: rgba(0, 0, 0, 0.15);
+  margin-bottom: 3px;
+}
+
+/* LIGHT THEME */
+[data-theme="light"] .projects-header-line {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* DARK THEME */
+[data-theme="dark"] .projects-header-line {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+
+/* =========================
+   PROJECTS GRID
+========================= */
+
+.section-inner.projects {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 4rem;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+}
+
+/* =========================
+   PROJECT CARD
+========================= */
+
+.project-card {
+  padding: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent);
+}
+
+.project-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.project-card p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* =========================
+   STACK TAGS
+========================= */
+
+.project-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.project-stack li {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text-muted);
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media screen and (max-width: 900px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .projects-header {
+    justify-content: center;
+    padding-left: 0;
+  }
+
+  .projects-header-line {
+    flex: 1;
+  }
 }

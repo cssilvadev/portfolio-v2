@@ -18,17 +18,20 @@
 }
 
 .contact-header-line {
-  width: 70%; /* 50% do espaço restante */
+  width: 70%; 
   height: 3px;
   background-color: rgba(0,0,0,0.15);
   margin-bottom: 3px;
 }
 
+/* LIGHT THEME */
+[data-theme="light"] .contact-header-line {
+  background-color: rgba(0, 0, 0, 0.15);
+}
 
-@media (prefers-color-scheme: dark) {
-  .contact-header-line {
-    background-color: rgba(255,255,255,0.15);
-  }
+/* DARK THEME */
+[data-theme="dark"] .contact-header-line {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* =========================
@@ -44,7 +47,7 @@
   align-items: start;
   padding-left: 2rem;
   padding-right: 2rem;
-  padding-bottom: 4rem; /* <<< adiciona espaço extra embaixo */
+  padding-bottom: 4rem;
 }
 
 /* COLUNA ESQUERDA */
@@ -96,8 +99,8 @@
 
 .contact-socials {
   display: flex;
-  flex-direction: row;  /* horizontal */
-  gap: 1rem;            /* distância entre os links */
+  flex-direction: row;
+  gap: 1rem;     
 }
 
 
@@ -130,7 +133,7 @@
   flex-direction: column;
   justify-content: start;
   margin-top: 2rem;
-    margin-top: 4rem; /* <<< aumenta esse valor para descer mais */
+  margin-top: 4rem; 
 }
 
 .contact-form-title {
