@@ -5,25 +5,41 @@ const projects = [
     title: "Haptic Chair Controller",
     description:
       "Firmware and desktop interface for a multi-channel haptic feedback chair.",
+    date: "2024",
+    image: "/projects/haptic-chair.png",
     stack: ["STM32", "C", "C#", "WPF", "PWM"],
   },
   {
     title: "Force Feedback Steering Wheel",
     description:
       "Custom USB HID steering wheel with force feedback.",
+    date: "2023",
+    image: "/projects/steering-wheel.png",
     stack: ["STM32", "C", "USB HID"],
   },
   {
     title: "CAN Telemetry Monitor",
     description:
       "Real-time CAN bus analyzer with desktop interface.",
+    date: "2023",
+    image: "/projects/can-monitor.png",
     stack: ["CAN", "C#", ".NET"],
   },
   {
     title: "Interactive Portfolio",
     description:
       "Personal portfolio with interactive visuals.",
+    date: "2024",
+    image: "/projects/portfolio.png",
     stack: ["React", "TypeScript", "CSS"],
+  },
+  {
+    title: "Seatbelt Tension System",
+    description:
+      "Embedded control system for active seatbelt tension.",
+    date: "2022",
+    image: "/projects/seatbelt.png",
+    stack: ["STM32", "C", "PWM"],
   },
 ];
 
@@ -31,27 +47,50 @@ export default function Projects() {
   return (
     <section id="projects" className="section">
 
-      {/* TÍTULO DA SEÇÃO */}
+      {/* TITLE */}
       <div className="projects-header">
         <h2>PROJECTS</h2>
         <div className="projects-header-line"></div>
       </div>
 
-      {/* CONTEÚDO */}
+      {/* CONTENT */}
       <div className="section-inner projects">
-        <div className="projects-grid">
-          {projects.map((project, index) => (
-            <article key={index} className="project-card">
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
+        <div className="projects-marquee">
 
-              <ul className="project-stack">
-                {project.stack.map((tech, i) => (
-                  <li key={i}>{tech}</li>
-                ))}
-              </ul>
+          {[...projects, ...projects].map((project, index) => (
+            <article key={index} className="project-card">
+
+              {/* AOBVE IMAGE */}
+              <img
+                src={project.image}
+                alt={project.title}
+                className="project-image-top"
+              />
+
+              {/* TEXT */}
+              <div className="project-main">
+                <h3>{project.title}</h3>
+                <p>{project.description}</p>
+              </div>
+
+              {/* FOOTER */}
+              <div className="project-footer">
+                <span className="project-date">{project.date}</span>
+
+                <div className="project-footer-right">
+                  <ul className="project-stack">
+                    {project.stack.map((tech, i) => (
+                      <li key={i}>{tech}</li>
+                    ))}
+                  </ul>
+
+                  <button className="project-view">View</button>
+                </div>
+              </div>
+
             </article>
           ))}
+
         </div>
       </div>
 
