@@ -1,0 +1,23 @@
+.robot-container {
+  width: 100%;
+  height: 100px;
+  position: relative;
+}
+
+.robot-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.robot-wrapper {
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  position: relative;
+}
+
+.robot-wrapper > div {
+  position: absolute;
+  inset: 0;
+  transform: translateY(60px);
+}
