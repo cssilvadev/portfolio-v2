@@ -2,9 +2,9 @@ import "./Projects.css";
 
 const projects = [
   {
-    title: "Haptic Chair Controller",
+    title: "Arm Robot ",
     description:
-      "Firmware and desktop interface for a multi-channel haptic feedback chair.",
+      "Firmware and desktop interface for a Arm Robot.",
     date: "2024",
     image: "/projects/haptic-chair.png",
     stack: ["STM32", "C", "C#", "WPF", "PWM"],
@@ -29,15 +29,15 @@ const projects = [
     title: "Interactive Portfolio",
     description:
       "Personal portfolio with interactive visuals.",
-    date: "2024",
+    date: "2025",
     image: "/projects/portfolio.png",
     stack: ["React", "TypeScript", "CSS"],
   },
   {
-    title: "Seatbelt Tension System",
+    title: "Quadruped Robot",
     description:
-      "Embedded control system for active seatbelt tension.",
-    date: "2022",
+      "Quadruped robot with ESP32 using MAUI to control via Android Phone.",
+    date: "2026",
     image: "/projects/seatbelt.png",
     stack: ["STM32", "C", "PWM"],
   },

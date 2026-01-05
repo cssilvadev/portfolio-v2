@@ -7,7 +7,7 @@ export default function Home() {
       <div className="hero">
 
         <div className="hero-left">
-          <p className="eyebrow">Software & Firmware Engineer</p>
+          <p className="eyebrow">Full Stack Developer & Firmware Engineer</p>
           <h1>Christian Silva</h1>
           <p className="subtitle">
             Building software, firmware and interactive systems.

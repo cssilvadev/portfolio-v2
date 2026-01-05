@@ -17,7 +17,7 @@ export default function About() {
 
           {/* PHOTO */}
           <div className="about-photo">
-            <img src="/profile.jpg" alt="Profile" />
+            <img src="/images/me.jpg" alt="Profile" />
           </div>
 
           {/* TEXT */}
@@ -34,7 +34,7 @@ export default function About() {
             </div>
 
             <p>
-              Software & Firmware Engineer focused on embedded systems, STM32,
+              Full Stack & Firmware Engineer focused on embedded systems, STM32,
               CAN networks and hardware-oriented development. I enjoy bridging
               low-level firmware with high-level software and UI.
             </p>
@@ -48,7 +48,7 @@ export default function About() {
                   <span className="dot"></span>
                   <div>
                     <strong>Computer Science</strong>
-                    <p>Universidade UCS</p>
+                    <p>Universidade de Caxias do Sul - UCS</p>
                     <small>2024 — Present</small>
                   </div>
                 </li>
@@ -59,15 +59,6 @@ export default function About() {
                     <strong>Embedded Systems & Firmware</strong>
                     <p>STM32 · C · CAN · HID</p>
                     <small>2023 — 2024</small>
-                  </div>
-                </li>
-
-                <li>
-                  <span className="dot"></span>
-                  <div>
-                    <strong>High School</strong>
-                    <p>Technical Focus</p>
-                    <small>2022 — 2023</small>
                   </div>
                 </li>
               </ul>
