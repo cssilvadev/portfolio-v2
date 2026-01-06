@@ -10,9 +10,9 @@ const projects = [
     stack: ["STM32", "C", "C#", "WPF", "PWM"],
   },
   {
-    title: "Force Feedback Steering Wheel",
+    title: "G27 Pedal Adapter",
     description:
-      "Custom USB HID steering wheel with force feedback.",
+      "Custom USB HID Pedal Adapter.",
     date: "2023",
     image: "/projects/steering-wheel.png",
     stack: ["STM32", "C", "USB HID"],
