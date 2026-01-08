@@ -20,12 +20,12 @@ const projects = [
     stack: ["STM32", "C", "USB HID"],
   },
   {
-    slug: "can-telemetry-monitor",
-    title: "CAN Telemetry Monitor",
+    slug: "Humanoid-Robot",
+    title: "Humanoid Robot",
     description:
-      "Real-time CAN bus analyzer with desktop interface.",
-    date: "2023",
-    image: "/projects/can-monitor.png",
+      "Humanoid robot with ESP32 using MAUI to control via Android Phone.",
+    date: "2026",
+    image: "/projects/humanoid-robot.png",
     stack: ["CAN", "C#", ".NET"],
   },
   {
