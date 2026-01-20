@@ -8,6 +8,7 @@
   --font-main: 'Inter', system-ui, sans-serif;
 }
 
+
 [data-theme="light"] {
   --bg: #f7f7f7;
   --bg-soft: #ffffff;
@@ -28,10 +29,11 @@ html, body, #root {
   font-family: var(--font-main);
 }
 
+
 :root {
-  --cursor-color: #ffffff; /* cursor branco no dark */
+  --cursor-color: #ffffff;
 }
 
 [data-theme="light"] {
-  --cursor-color: #000000; /* cursor preto no light */
+  --cursor-color: #000000;
 }

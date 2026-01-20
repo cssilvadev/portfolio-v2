@@ -1,28 +1,18 @@
-import Cursor from './components/Cursor/Cursor'
-import NavBar from "./components/NavBar/NavBar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Landing from "./pages/landing/Landing";
+import ProjectPage from "./pages/projectPage/ProjectPage";
 
-
-
-import Home from './pages/home'
-import Projects from './pages/projects'
-import About from './pages/about'
-import Contact from './pages/contact'
-
-
-import './App.css'
+import "./App.css";
 
 export default function App() {
   return (
-    <>
-      <Cursor />
-      <NavBar />
-
-      <main>
-        <Home />
-        <Projects />
-        <About />
-        <Contact />
-      </main>
-    </>
-  )
+    <div className="app-root">
+<BrowserRouter basename={import.meta.env.BASE_URL}>
+  <Routes>
+    <Route path="/" element={<Landing />} />
+    <Route path="/projects/:slug" element={<ProjectPage />} />
+  </Routes>
+</BrowserRouter>
+    </div>
+  );
 }

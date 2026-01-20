@@ -1,16 +1,20 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { FaMoon, FaSun } from "react-icons/fa";
 import "./Navbar.css";
 
+type Theme = "dark" | "light";
+
 export default function Navbar() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem("theme") as Theme | null;
+    return saved ?? "dark";
+  });
 
   useEffect(() => {
-    document.documentElement.setAttribute(
-      "data-theme",
-      darkMode ? "dark" : "light"
-    );
-  }, [darkMode]);
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   return (
     <nav className="navbar">
@@ -18,19 +22,24 @@ export default function Navbar() {
 
       <ul className="nav-links">
         <li>
-          <a href="#home">Home</a>
+          <Link to="/">Home</Link>
         </li>
         <li>
-          <a href="#projects">Projects</a>
+          <Link to="/#projects">Projects</Link>
         </li>
         <li>
-          <a href="#about">About</a>
+          <Link to="/#about">About</Link>
         </li>
         <li>
-          <a href="#contact">Contact</a>
+          <Link to="/#contact">Contact</Link>
         </li>
-        <li onClick={() => setDarkMode(!darkMode)}>
-          {darkMode ? <FaMoon /> : <FaSun />}
+
+        <li
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          style={{ cursor: "pointer" }}
+          aria-label="Toggle theme"
+        >
+          {theme === "dark" ? <FaMoon /> : <FaSun />}
         </li>
       </ul>
     </nav>
