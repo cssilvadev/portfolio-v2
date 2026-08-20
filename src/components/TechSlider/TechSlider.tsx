@@ -10,8 +10,6 @@ import {
 import { TbBrandCSharp } from "react-icons/tb";
 import { FaMicrochip } from "react-icons/fa";
 
-import "./TechSlider.css";
-
 const techStack = [
   SiC,
   SiCplusplus,

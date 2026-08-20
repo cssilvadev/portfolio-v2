@@ -4,7 +4,7 @@ import { FaMoon, FaSun } from "react-icons/fa";
 import { useLanguage } from "../../context/LanguageContext";
 import { FlagIcon, FlagBR, FlagUS, FlagES } from "../Flags/Flags";
 import type { Language } from "../../i18n/translations";
-import "./Navbar.css";
+import "./NavBar.css";
 
 type Theme = "dark" | "light";
 
