@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="100%" height="100%">
+  <defs>
+    <linearGradient id="humanoidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <radialGradient id="glowHuman" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="340" rx="16" fill="url(#humanoidGrad)"/>
+  <circle cx="300" cy="170" r="140" fill="url(#glowHuman)"/>
+  <!-- Humanoid Robot Visor & Head -->
+  <rect x="240" y="80" width="120" height="90" rx="20" fill="#1e293b" stroke="#34d399" stroke-width="4"/>
+  <rect x="260" y="110" width="80" height="24" rx="12" fill="#059669" stroke="#6ee7b7" stroke-width="2"/>
+  <circle cx="280" cy="122" r="4" fill="#a7f3d0"/>
+  <circle cx="320" cy="122" r="4" fill="#a7f3d0"/>
+  <!-- Torso & CAN Bus Badge -->
+  <path d="M 220 200 L 380 200 L 350 250 L 250 250 Z" fill="#334155" stroke="#34d399" stroke-width="3"/>
+  <text x="300" y="235" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="14" font-weight="700" text-anchor="middle">ESP32 • CAN • MAUI</text>
+  <text x="300" y="295" fill="#6ee7b7" font-family="system-ui, sans-serif" font-size="16" font-weight="600" text-anchor="middle" letter-spacing="1">HUMANOID ROBOT</text>
+</svg>

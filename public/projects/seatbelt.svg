@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="100%" height="100%">
+  <defs>
+    <linearGradient id="quadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917" />
+      <stop offset="50%" stop-color="#292524" />
+      <stop offset="100%" stop-color="#0c0a09" />
+    </linearGradient>
+    <radialGradient id="glowQuad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="340" rx="16" fill="url(#quadGrad)"/>
+  <circle cx="300" cy="170" r="140" fill="url(#glowQuad)"/>
+  <!-- Quadruped Chassis & Articulated Legs -->
+  <rect x="230" y="110" width="140" height="60" rx="12" fill="#44403c" stroke="#fb923c" stroke-width="4"/>
+  <!-- Front and Back Legs -->
+  <polyline points="245,170 215,220 230,260" stroke="#fdba74" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <polyline points="355,170 385,220 370,260" stroke="#fdba74" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="245" cy="170" r="6" fill="#ea580c"/>
+  <circle cx="355" cy="170" r="6" fill="#ea580c"/>
+  <text x="300" y="295" fill="#fed7aa" font-family="system-ui, sans-serif" font-size="16" font-weight="600" text-anchor="middle" letter-spacing="1">QUADRUPED ROBOT • 3-DOF IK</text>
+</svg>

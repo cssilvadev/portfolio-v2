@@ -1,20 +1,17 @@
 import { Link, useParams } from "react-router-dom";
 import Cursor from "../../components/Cursor/Cursor";
 import NavBar from "../../components/NavBar/NavBar";
-import { projects } from "../../data/projects";
+import { getProjectBySlug } from "../../data/projects";
+import { useLanguage } from "../../context/LanguageContext";
+import { getAssetUrl } from "../../utils/assets";
 
 import "./ProjectPage.css";
 
 export default function ProjectPage() {
   const { slug } = useParams();
+  const { t, language } = useLanguage();
 
-  // protege contra alguém digitar /arm-robot.html
-  const raw = (slug ?? "").toLowerCase();
-  const normalized = raw.endsWith(".html") ? raw.slice(0, -5) : raw;
-
-  const project = projects.find(
-    (p) => p.slug.toLowerCase() === normalized
-  );
+  const project = slug ? getProjectBySlug(slug, language) : undefined;
 
   return (
     <>
@@ -24,14 +21,14 @@ export default function ProjectPage() {
       <main className="project-page">
         <div className="project-page-inner">
           <Link to="/#projects" className="project-back">
-            ← Back to Projects
+            {t.projects.backBtn}
           </Link>
 
           {!project ? (
             <div className="project-notfound">
-              <h1>Project not found</h1>
-              <p>Esse slug não existe.</p>
-              <Link to="/">Voltar pro início</Link>
+              <h1>{t.projects.notFound}</h1>
+              <p>{t.projects.notFoundDesc}</p>
+              <Link to="/">{t.projects.backHome}</Link>
             </div>
           ) : (
             <>
@@ -42,25 +39,22 @@ export default function ProjectPage() {
 
               <img
                 className="project-hero"
-                src={project.image}
+                src={getAssetUrl(project.image)}
                 alt={project.title}
               />
 
               <section className="project-meta">
                 <span className="project-date">{project.date}</span>
                 <ul className="project-stack">
-                  {project.stack.map((t) => (
-                    <li key={`${project.slug}-${t}`}>{t}</li>
+                  {project.stack.map((tItem) => (
+                    <li key={`${project.slug}-${tItem}`}>{tItem}</li>
                   ))}
                 </ul>
               </section>
 
               <section className="project-body">
-                <h2>Overview</h2>
-                <p>
-                  Aqui você coloca um texto mais completo: objetivo, desafios,
-                  arquitetura, firmware (STM32), interface (WPF), etc.
-                </p>
+                <h2>{t.projects.overview}</h2>
+                <p>{project.overview}</p>
               </section>
             </>
           )}

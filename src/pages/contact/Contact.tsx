@@ -1,13 +1,17 @@
-import "./Contact.css";
+import { useLanguage } from "../../context/LanguageContext";
+import { getAssetUrl } from "../../utils/assets";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import "./Contact.css";
 
 export default function Contact() {
+  const { t } = useLanguage();
+
   return (
     <section id="contact" className="section">
 
       {/* TÍTULO DA SEÇÃO */}
       <div className="contact-header">
-        <h2>CONTACT</h2>
+        <h2>{t.contact.title}</h2>
         <div className="contact-header-line"></div>
       </div>
 
@@ -17,12 +21,12 @@ export default function Contact() {
         {/* LEFT */}
         <div className="contact-left">
           <div className="contact-top">
-            <img src="/images/me.jpg" alt="Christian" className="contact-photo" />
+            <img src={getAssetUrl("/images/me.jpg")} alt="Christian Silva" className="contact-photo" />
             <h3 className="contact-name">Christian Silva</h3>
           </div>
 
           <div className="contact-bottom">
-            <p className="muted">Software & Firmware Engineer</p>
+            <p className="muted">{t.contact.role}</p>
 
             <div className="contact-socials">
               <a href="https://github.com/cssilvadev" target="_blank" rel="noopener noreferrer" className="social-link github">
@@ -43,13 +47,13 @@ export default function Contact() {
 
         {/* RIGHT */}
         <div className="contact-right">
-          <h3 className="contact-form-title">Send me a message</h3>
-          <form className="contact-form">
-            <input placeholder="First name" />
-            <input placeholder="Last name" />
-            <input placeholder="Email" />
-            <textarea placeholder="Message" rows={4} />
-            <button type="submit">Send</button>
+          <h3 className="contact-form-title">{t.contact.formTitle}</h3>
+          <form className="contact-form" onSubmit={(e) => { e.preventDefault(); alert(t.contact.sentSuccess); }}>
+            <input placeholder={t.contact.firstName} required />
+            <input placeholder={t.contact.lastName} required />
+            <input type="email" placeholder={t.contact.email} required />
+            <textarea placeholder={t.contact.message} rows={4} required />
+            <button type="submit">{t.contact.sendBtn}</button>
           </form>
         </div>
 

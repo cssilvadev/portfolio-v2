@@ -1,60 +1,19 @@
+import { Link } from "react-router-dom";
+import { getAllLocalizedProjects } from "../../data/projects";
+import { useLanguage } from "../../context/LanguageContext";
+import { getAssetUrl } from "../../utils/assets";
 import "./Projects.css";
 
-const projects = [
-  {
-     slug: "arm-robot",
-    title: "Arm Robot ",
-    description:
-      "Firmware and desktop interface for a Arm Robot.",
-    date: "2024",
-    image: "/projects/haptic-chair.png",
-    stack: ["STM32", "C", "C#", "WPF", "PWM"],
-  },
-  {
-    slug: "g27-pedal-adapter",
-    title: "G27 Pedal Adapter",
-    description:
-      "Custom USB HID Pedal Adapter.",
-    date: "2023",
-    image: "/projects/steering-wheel.png",
-    stack: ["STM32", "C", "USB HID"],
-  },
-  {
-    slug: "Humanoid-Robot",
-    title: "Humanoid Robot",
-    description:
-      "Humanoid robot with ESP32 using MAUI to control via Android Phone.",
-    date: "2026",
-    image: "/projects/humanoid-robot.png",
-    stack: ["CAN", "C#", ".NET"],
-  },
-  {
-    slug: "interactive-portfolio",
-    title: "Interactive Portfolio",
-    description:
-      "Personal portfolio with interactive visuals.",
-    date: "2025",
-    image: "/projects/portfolio.png",
-    stack: ["React", "TypeScript", "CSS"],
-  },
-  {
-    slug: "quadruped-robot",
-    title: "Quadruped Robot",
-    description:
-      "Quadruped robot with ESP32 using MAUI to control via Android Phone.",
-    date: "2026",
-    image: "/projects/seatbelt.png",
-    stack: ["STM32", "C", "PWM"],
-  },
-];
-
 export default function Projects() {
+  const { t, language } = useLanguage();
+  const localizedProjects = getAllLocalizedProjects(language);
+
   return (
     <section id="projects" className="section">
 
       {/* TITLE */}
       <div className="projects-header">
-        <h2>PROJECTS</h2>
+        <h2>{t.projects.title}</h2>
         <div className="projects-header-line"></div>
       </div>
 
@@ -62,14 +21,17 @@ export default function Projects() {
       <div className="section-inner projects">
         <div className="projects-marquee">
 
-          {[...projects, ...projects].map((project, index) => (
+          {[...localizedProjects, ...localizedProjects].map((project, index) => (
             <article key={index} className="project-card">
 
-              {/* AOBVE IMAGE */}
+              {/* ABOVE IMAGE */}
               <img
-                src={project.image}
+                src={getAssetUrl(project.image)}
                 alt={project.title}
                 className="project-image-top"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = "none";
+                }}
               />
 
               {/* TEXT */}
@@ -89,12 +51,9 @@ export default function Projects() {
                     ))}
                   </ul>
 
-<a href="./projects/arm-robot.html" className="project-view">
-  View
-</a>
-
-
-
+                  <Link to={`/projects/${project.slug}`} className="project-view">
+                    {t.projects.viewBtn}
+                  </Link>
                 </div>
               </div>
 

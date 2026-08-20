@@ -1,16 +1,19 @@
 import Robot from "../../components/Robot/Robot";
+import { useLanguage } from "../../context/LanguageContext";
 import "./Home.css";
 
 export default function Home() {
+  const { t } = useLanguage();
+
   return (
     <section className="home">
       <div className="hero">
 
         <div className="hero-left">
-          <p className="eyebrow">Full Stack Developer & Firmware Engineer</p>
-          <h1>Christian Silva</h1>
+          <p className="eyebrow">{t.home.eyebrow}</p>
+          <h1>{t.home.name}</h1>
           <p className="subtitle">
-            Building software, firmware and interactive systems.
+            {t.home.subtitle}
           </p>
         </div>
 

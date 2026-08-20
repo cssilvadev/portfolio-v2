@@ -1,12 +1,16 @@
+import { useLanguage } from "../../context/LanguageContext";
+import { getAssetUrl } from "../../utils/assets";
 import "./About.css";
 
 export default function About() {
+  const { t } = useLanguage();
+
   return (
     <section id="about" className="section">
 
       {/* SECTION TITLE */}
       <div className="section-title">
-        <h2>ABOUT</h2>
+        <h2>{t.about.title}</h2>
         <div className="section-title-line"></div>
       </div>
 
@@ -17,7 +21,7 @@ export default function About() {
 
           {/* PHOTO */}
           <div className="about-photo">
-            <img src="/images/me.jpg" alt="Profile" />
+            <img src={getAssetUrl("/images/me.jpg")} alt="Christian Silva" />
           </div>
 
           {/* TEXT */}
@@ -27,45 +31,43 @@ export default function About() {
             </h3>
 
             <div className="about-tags">
-              <span>Brazil</span>
-              <span>Software</span>
-              <span>Firmware</span>
-              <span>Embedded</span>
+              <span>{t.about.tags.brazil}</span>
+              <span>{t.about.tags.software}</span>
+              <span>{t.about.tags.firmware}</span>
+              <span>{t.about.tags.embedded}</span>
             </div>
 
             <p>
-              Full Stack & Firmware Engineer focused on embedded systems, STM32,
-              CAN networks and hardware-oriented development. I enjoy bridging
-              low-level firmware with high-level software and UI.
+              {t.about.bio}
             </p>
 
             {/* EDUCATION */}
             <div className="about-education">
-              <h4>Education</h4>
+              <h4>{t.about.education}</h4>
 
               <ul className="education-list">
                 <li>
                   <span className="dot"></span>
                   <div>
-                    <strong>Computer Science</strong>
-                    <p>Universidade de Caxias do Sul - UCS</p>
-                    <small>2024 — Present</small>
+                    <strong>{t.about.csTitle}</strong>
+                    <p>{t.about.csUniv}</p>
+                    <small>{t.about.csDate}</small>
                   </div>
                 </li>
 
                 <li>
                   <span className="dot"></span>
                   <div>
-                    <strong>Embedded Systems & Firmware</strong>
-                    <p>STM32 · C · CAN · HID</p>
-                    <small>2023 — 2024</small>
+                    <strong>{t.about.embedTitle}</strong>
+                    <p>{t.about.embedDesc}</p>
+                    <small>{t.about.embedDate}</small>
                   </div>
                 </li>
               </ul>
             </div>
 
-            <a className="about-cv" href="/cv.pdf" target="_blank">
-              View my CV
+            <a className="about-cv" href={getAssetUrl("/cv.pdf")} target="_blank" rel="noopener noreferrer">
+              {t.about.cvBtn}
             </a>
           </div>
         </div>

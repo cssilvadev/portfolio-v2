@@ -6,6 +6,7 @@ import NavBar from "../../components/NavBar/NavBar";
 
 import Home from "../home";
 import Projects from "../projects";
+import Notes from "../notes";
 import About from "../about";
 import Contact from "../contact";
 
@@ -26,6 +27,7 @@ export default function Landing() {
       <main>
         <Home />
         <Projects />
+        <Notes />
         <About />
         <Contact />
       </main>

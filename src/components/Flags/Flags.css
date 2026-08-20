@@ -1,0 +1,16 @@
+/* =========================================
+   FLAG ICON STYLES
+   ========================================= */
+
+.flag-icon {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.lang-option:hover .flag-icon {
+  transform: scale(1.1);
+}

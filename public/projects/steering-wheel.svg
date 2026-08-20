@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="100%" height="100%">
+  <defs>
+    <linearGradient id="g27Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b" />
+      <stop offset="50%" stop-color="#27272a" />
+      <stop offset="100%" stop-color="#09090b" />
+    </linearGradient>
+    <radialGradient id="glowG27" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="340" rx="16" fill="url(#g27Grad)"/>
+  <circle cx="300" cy="170" r="140" fill="url(#glowG27)"/>
+  <!-- Steering Wheel & Pedals graphic -->
+  <circle cx="300" cy="155" r="75" fill="none" stroke="#60a5fa" stroke-width="12"/>
+  <circle cx="300" cy="155" r="25" fill="#1e293b" stroke="#93c5fd" stroke-width="4"/>
+  <line x1="225" y1="155" x2="275" y2="155" stroke="#93c5fd" stroke-width="8"/>
+  <line x1="325" y1="155" x2="375" y2="155" stroke="#93c5fd" stroke-width="8"/>
+  <line x1="300" y1="180" x2="300" y2="230" stroke="#93c5fd" stroke-width="8"/>
+  <text x="300" y="295" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="16" font-weight="600" text-anchor="middle" letter-spacing="1">G27 PEDAL ADAPTER • USB HID</text>
+</svg>
