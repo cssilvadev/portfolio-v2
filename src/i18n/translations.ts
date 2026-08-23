@@ -74,6 +74,28 @@ export interface Translations {
     sendBtn: string;
     sentSuccess: string;
   };
+  subscription: {
+    modalTitle: string;
+    subtitle: string;
+    monthlyTab: string;
+    annualTab: string;
+    discountBadge: string;
+    feature1Title: string;
+    feature1Desc: string;
+    feature2Title: string;
+    feature2Desc: string;
+    feature3Title: string;
+    feature3Desc: string;
+    priceAmountMonthly: string;
+    priceAmountAnnual: string;
+    pricePeriodMonthly: string;
+    pricePeriodAnnual: string;
+    priceDesc: string;
+    acceptedPaymentsLabel: string;
+    subscribeBtn: string;
+    signInToSub: string;
+    activeSub: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -158,6 +180,28 @@ export const translations: Record<Language, Translations> = {
       sendBtn: "Send",
       sentSuccess: "Message sent successfully!",
     },
+    subscription: {
+      modalTitle: "Unlock Portfolio PRO",
+      subtitle: "Get unrestricted access to deep-dive engineering blueprints, source code, and studio tools.",
+      monthlyTab: "Monthly",
+      annualTab: "Annual",
+      discountBadge: "Save 20%",
+      feature1Title: "Exclusive Firmware & Robotics Notes",
+      feature1Desc: "Complete STM32, FreeRTOS, CAN Bus, & IK mathematical breakdowns.",
+      feature2Title: "Note Studio & Markdown Tools",
+      feature2Desc: "Export ready-to-publish technical articles with high-speed syntax highlighting.",
+      feature3Title: "Priority Q&A & Code Access",
+      feature3Desc: "Direct priority support and early access to hardware repositories.",
+      priceAmountMonthly: "$5",
+      priceAmountAnnual: "$48",
+      pricePeriodMonthly: "/ month",
+      pricePeriodAnnual: "/ year ($4/mo)",
+      priceDesc: "Cancel anytime. Safe & secure payment.",
+      acceptedPaymentsLabel: "Accepted Payment Methods:",
+      subscribeBtn: "Subscribe Now",
+      signInToSub: "Sign In to Subscribe",
+      activeSub: "Active Pro Subscriber",
+    },
   },
   pt: {
     nav: {
@@ -240,6 +284,28 @@ export const translations: Record<Language, Translations> = {
       sendBtn: "Enviar",
       sentSuccess: "Mensagem enviada com sucesso!",
     },
+    subscription: {
+      modalTitle: "Desbloqueie o Portfolio PRO",
+      subtitle: "Acesso ilimitado a blueprints de engenharia, código-fonte de firmware e ferramentas do Studio.",
+      monthlyTab: "Mensal",
+      annualTab: "Anual",
+      discountBadge: "Economize 20%",
+      feature1Title: "Notas Exclusivas de Firmware & Robótica",
+      feature1Desc: "Análises completas de STM32, FreeRTOS, CAN Bus e matemática de Cinemática Inversa.",
+      feature2Title: "Note Studio & Ferramentas Markdown",
+      feature2Desc: "Exporte artigos técnicos prontos para publicação com destaque de sintaxe.",
+      feature3Title: "Suporte Prioritário & Acesso ao Código",
+      feature3Desc: "Suporte direto prioritário e acesso antecipado aos repositórios de hardware.",
+      priceAmountMonthly: "R$ 25",
+      priceAmountAnnual: "R$ 240",
+      pricePeriodMonthly: "/ mês",
+      pricePeriodAnnual: "/ ano (R$ 20/mês)",
+      priceDesc: "Cancele quando quiser. Pagamento 100% seguro.",
+      acceptedPaymentsLabel: "Formas de Pagamento Aceitas:",
+      subscribeBtn: "Assinar Agora",
+      signInToSub: "Faça Login para Assinar",
+      activeSub: "Assinante Pro Ativo",
+    },
   },
   es: {
     nav: {
@@ -321,6 +387,28 @@ export const translations: Record<Language, Translations> = {
       message: "Mensaje",
       sendBtn: "Enviar",
       sentSuccess: "¡Mensaje enviado con éxito!",
+    },
+    subscription: {
+      modalTitle: "Desbloquea Portfolio PRO",
+      subtitle: "Acceso ilimitado a diseños de ingeniería, código fuente de firmware y herramientas del Studio.",
+      monthlyTab: "Mensual",
+      annualTab: "Anual",
+      discountBadge: "Ahorra 20%",
+      feature1Title: "Notas Exclusivas de Firmware y Robótica",
+      feature1Desc: "Análisis completos de STM32, FreeRTOS, CAN Bus y matemática de Cinemática Inversa.",
+      feature2Title: "Estudio de Notas y Herramientas Markdown",
+      feature2Desc: "Exporta artículos técnicos listos para publicar con resaltado de sintaxis.",
+      feature3Title: "Soporte Prioritario y Acceso al Código",
+      feature3Desc: "Soporte directo prioritario y acceso anticipado a repositorios de hardware.",
+      priceAmountMonthly: "5 €",
+      priceAmountAnnual: "48 €",
+      pricePeriodMonthly: "/ mes",
+      pricePeriodAnnual: "/ año (4€/mes)",
+      priceDesc: "Cancela en cualquier momento. Pago 100% seguro.",
+      acceptedPaymentsLabel: "Métodos de Pago Aceptados:",
+      subscribeBtn: "Suscribirse Ahora",
+      signInToSub: "Inicia Sesión para Suscribirte",
+      activeSub: "Suscriptor Pro Activo",
     },
   },
 };
