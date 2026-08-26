@@ -1,0 +1,107 @@
+.hero-terminal {
+  margin-top: 2rem;
+  max-width: 460px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] .hero-terminal {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.hero-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .hero-terminal-bar {
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom-color: rgba(0, 0, 0, 0.07);
+}
+
+.hero-terminal-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+.dot-red {
+  background: #ff5f56;
+}
+
+.dot-yellow {
+  background: #ffbd2e;
+}
+
+.dot-green {
+  background: #27c93f;
+}
+
+.hero-terminal-title {
+  margin-left: 0.5rem;
+  font-family: "Geist Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.hero-terminal-body {
+  padding: 0.9rem 1rem 1.1rem;
+  min-height: 128px;
+  font-family: "Geist Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.terminal-line {
+  display: flex;
+  gap: 0.55rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.terminal-line.command {
+  color: var(--text);
+}
+
+.terminal-line.output {
+  color: var(--text-muted);
+}
+
+.terminal-prompt {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  background: var(--accent);
+  animation: terminalBlink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes terminalBlink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-terminal {
+    margin: 2rem auto 0;
+  }
+}

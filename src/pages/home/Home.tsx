@@ -1,4 +1,5 @@
 import Robot from "../../components/Robot/Robot";
+import HeroTerminal from "../../components/HeroTerminal/HeroTerminal";
 import { useLanguage } from "../../context/LanguageContext";
 import "./Home.css";
 
@@ -15,6 +16,8 @@ export default function Home() {
           <p className="subtitle">
             {t.home.subtitle}
           </p>
+
+          <HeroTerminal />
         </div>
 
         <div className="hero-right">

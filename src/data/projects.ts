@@ -6,11 +6,17 @@ export type ProjectContent = {
   overview: string;
 };
 
+export type ProjectSpec = {
+  key: string;
+  value: string;
+};
+
 export type Project = {
   slug: string;
   date: string;
   image: string;
   stack: string[];
+  specs: ProjectSpec[];
   en: ProjectContent;
   pt: ProjectContent;
   es: ProjectContent;
@@ -22,6 +28,12 @@ export const projects: Project[] = [
     date: "2024",
     image: "/projects/haptic-chair.svg",
     stack: ["STM32", "C", "C#", "WPF", "PWM"],
+    specs: [
+      { key: "mcu", value: "STM32F103C8T6" },
+      { key: "control", value: "6-DOF PWM Servo Control" },
+      { key: "interface", value: "C# WPF Desktop GUI" },
+      { key: "comms", value: "USB Serial · 115200 baud" },
+    ],
     en: {
       title: "Arm Robot",
       description: "Firmware and desktop interface for an articulated Robotic Arm.",
@@ -46,6 +58,12 @@ export const projects: Project[] = [
     date: "2023",
     image: "/projects/steering-wheel.svg",
     stack: ["STM32", "C", "USB HID"],
+    specs: [
+      { key: "mcu", value: "STM32F103" },
+      { key: "interface", value: "USB HID · Custom Report Descriptor" },
+      { key: "input", value: "3-axis ADC (Throttle/Brake/Clutch)" },
+      { key: "latency", value: "<1ms USB polling" },
+    ],
     en: {
       title: "G27 Pedal Adapter",
       description: "Custom USB HID Pedal Adapter for Logitech hardware.",
@@ -70,6 +88,13 @@ export const projects: Project[] = [
     date: "2026",
     image: "/projects/humanoid-robot.svg",
     stack: ["CAN", "C#", ".NET", "ESP32", "MAUI"],
+    specs: [
+      { key: "mcu", value: "ESP32 (multi-node)" },
+      { key: "network", value: "CAN Bus 2.0B" },
+      { key: "dof", value: "12+ Servo Joints" },
+      { key: "app", value: ".NET MAUI (cross-platform)" },
+      { key: "telemetry", value: "Real-time gait diagnostics" },
+    ],
     en: {
       title: "Humanoid Robot",
       description: "Bipedal humanoid robot with ESP32 controlled via .NET MAUI mobile app.",
@@ -94,6 +119,12 @@ export const projects: Project[] = [
     date: "2025",
     image: "/projects/portfolio.svg",
     stack: ["React", "TypeScript", "Three.js", "CSS"],
+    specs: [
+      { key: "frontend", value: "React 19 + TypeScript" },
+      { key: "render3d", value: "Spline / Three.js WebGL" },
+      { key: "backend", value: "Supabase (Auth + Postgres)" },
+      { key: "i18n", value: "EN / PT-BR / ES" },
+    ],
     en: {
       title: "Interactive Portfolio",
       description: "Personal portfolio with interactive 3D visuals and technical notes hub.",
@@ -114,10 +145,49 @@ export const projects: Project[] = [
     },
   },
   {
+    slug: "jarvis",
+    date: "2026",
+    image: "/projects/jarvis-standby-hud.png",
+    stack: ["C#", ".NET MAUI", "Python", "MediaPipe", "WebGL", "Ollama"],
+    specs: [
+      { key: "app", value: ".NET MAUI (C#) · HTML/CSS/JS HUD in WebView2" },
+      { key: "vision", value: "MediaPipe Hand Landmarker · holographic pinch cursor" },
+      { key: "voice", value: "openWakeWord + claps · Silero VAD · faster-whisper · Kokoro TTS" },
+      { key: "llm", value: "Ollama · Qwen 3.5 4B, deterministic commands first" },
+      { key: "render3d", value: "Hand-written WebGL · offline STL viewer" },
+      { key: "comms", value: "HTTP + WebSocket over localhost" },
+    ],
+    en: {
+      title: "Jarvis",
+      description: "Iron Man-style desktop AI assistant with real-time hand tracking, voice control, and a fully local LLM.",
+      overview:
+        "A desktop AI assistant inspired by Iron Man's HUD. The shell is a .NET MAUI (C#) Windows app rendering an HTML/CSS/JS interface — arc-reactor visuals, panels, and a hand-written WebGL 3D viewer with its own STL parser and shaders — inside an embedded WebView2, no front-end framework involved. A separate Python service handles hand tracking with MediaPipe's Hand Landmarker, turning the index finger into a holographic cursor and a thumb-to-index pinch into a drag gesture for the HUD panels themselves — only landmark coordinates cross into the app, never a camera frame. Say \"open a STL\" and the same hand-written WebGL viewer loads and explodes a 3D model into labeled, dimensioned parts, fully offline. Voice runs entirely on-device: openWakeWord (or two claps) triggers listening, Silero VAD confirms real speech, faster-whisper (large-v3-turbo) transcribes it locally, and Kokoro speaks the reply — it replaced an earlier Chatterbox voice-cloning engine that took up to 70 seconds per phrase. Every command hits a deterministic, whitelisted resolver before anything reaches an LLM; only genuinely open-ended questions go to Ollama running Qwen 3.5 4B locally. The C# app and Python services talk over HTTP and WebSocket, all on localhost — nothing leaves the machine except a couple of optional non-AI integrations (Spotify, stock quotes via BRAPI).",
+    },
+    pt: {
+      title: "Jarvis",
+      description: "Assistente de IA para desktop no estilo Homem de Ferro, com rastreamento de mão em tempo real, controle por voz e LLM 100% local.",
+      overview:
+        "Um assistente de IA para desktop inspirado no HUD do Homem de Ferro. A casca é um app Windows em .NET MAUI (C#) que renderiza uma interface em HTML/CSS/JS — reator, painéis e um visualizador 3D em WebGL escrito à mão, com parser de STL e shaders próprios — dentro de um WebView2 embutido, sem framework de front-end. Um serviço Python separado cuida do rastreamento de mão com o Hand Landmarker do MediaPipe, transformando o dedo indicador em cursor holográfico e a pinça entre polegar e indicador em gesto de arrastar os próprios painéis do HUD — só as coordenadas dos pontos cruzam pro app, nunca um frame da câmera. Dizer \"abra um STL\" abre esse mesmo visualizador WebGL escrito à mão pra explodir um modelo 3D em peças nomeadas e dimensionadas, totalmente offline. O áudio roda 100% local: openWakeWord (ou duas palmas) dispara a escuta, Silero VAD confirma fala de verdade, faster-whisper (large-v3-turbo) transcreve localmente, e o Kokoro responde por voz — ele substituiu um motor anterior de clonagem de voz, o Chatterbox, que chegava a levar 70 segundos por frase. Todo comando passa por um resolvedor determinístico e com lista de permissões antes de qualquer coisa chegar a um LLM; só perguntas genuinamente abertas vão pro Ollama rodando Qwen 3.5 4B localmente. O app em C# e os serviços Python conversam por HTTP e WebSocket, tudo em localhost — nada sai da máquina, exceto integrações opcionais sem IA (Spotify, cotação de ações via BRAPI).",
+    },
+    es: {
+      title: "Jarvis",
+      description: "Asistente de IA de escritorio al estilo Iron Man, con seguimiento de manos en tiempo real, control por voz y LLM 100% local.",
+      overview:
+        "Un asistente de IA de escritorio inspirado en el HUD de Iron Man. La capa base es una app de Windows en .NET MAUI (C#) que renderiza una interfaz en HTML/CSS/JS —reactor, paneles y un visor 3D en WebGL escrito a mano, con parser de STL y shaders propios— dentro de un WebView2 embebido, sin framework de frontend. Un servicio Python aparte se encarga del seguimiento de manos con el Hand Landmarker de MediaPipe, convirtiendo el dedo índice en un cursor holográfico y la pinza entre pulgar e índice en un gesto para arrastrar los propios paneles del HUD — solo las coordenadas de los puntos cruzan hacia la app, nunca un fotograma de la cámara. Decir \"abre un STL\" abre ese mismo visor WebGL escrito a mano para explosionar un modelo 3D en piezas nombradas y con sus dimensiones, totalmente offline. El audio corre 100% local: openWakeWord (o dos palmadas) dispara la escucha, Silero VAD confirma habla real, faster-whisper (large-v3-turbo) transcribe localmente, y Kokoro responde por voz — reemplazó a un motor anterior de clonación de voz, Chatterbox, que llegaba a tardar 70 segundos por frase. Cada comando pasa por un resolvedor determinístico con lista de permisos antes de que algo llegue a un LLM; solo las preguntas genuinamente abiertas van a Ollama ejecutando Qwen 3.5 4B localmente. La app en C# y los servicios en Python se comunican por HTTP y WebSocket, todo en localhost — nada sale de la máquina, salvo un par de integraciones opcionales sin IA (Spotify, cotización de acciones vía BRAPI).",
+    },
+  },
+  {
     slug: "quadruped-robot",
     date: "2026",
     image: "/projects/seatbelt.svg",
     stack: ["STM32", "C", "PWM", "FreeRTOS"],
+    specs: [
+      { key: "mcu", value: "STM32G4" },
+      { key: "control", value: "3-DOF Inverse Kinematics" },
+      { key: "rtos", value: "FreeRTOS periodic tasks" },
+      { key: "dof", value: "12 (4 legs × 3 joints)" },
+      { key: "gait", value: "Trot Pattern Generator" },
+    ],
     en: {
       title: "Quadruped Robot",
       description: "Quadruped robotic platform with 3-DOF leg Inverse Kinematics solver.",
@@ -146,6 +216,7 @@ export function getLocalizedProject(project: Project, lang: Language) {
     date: project.date,
     image: project.image,
     stack: project.stack,
+    specs: project.specs,
     title: content.title,
     description: content.description,
     overview: content.overview,

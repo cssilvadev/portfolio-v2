@@ -1,0 +1,50 @@
+.app-crash-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--bg, #000);
+  color: var(--text, #eaeaea);
+}
+
+.app-crash-card {
+  max-width: 560px;
+  padding: 2rem;
+  border-radius: 14px;
+  background: var(--bg-soft, #121212);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-crash-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  font-family: "Geist Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.app-crash-card h1 {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.app-crash-card p {
+  color: var(--text-muted, #9a9a9a);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.app-crash-hint code {
+  font-family: "Geist Mono", monospace;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}

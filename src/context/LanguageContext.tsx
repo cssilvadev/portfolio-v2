@@ -45,6 +45,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// The hook intentionally lives beside its provider so consumers share the
+// same context contract; this is safe and does not affect Fast Refresh state.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (!context) {

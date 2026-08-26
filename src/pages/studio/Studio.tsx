@@ -51,16 +51,40 @@ void main() {
 > Use the toolbar buttons above to quickly insert headers, code blocks, and callout boxes.
 `;
 
+const STUDIO_DRAFT_KEY = "chris_notes_studio_draft";
+
+type StudioDraft = {
+  title?: string;
+  slug?: string;
+  category?: NoteCategory;
+  tagsInput?: string;
+  coverImage?: string;
+  excerpt?: string;
+  content?: string;
+};
+
+function loadStudioDraft(): StudioDraft {
+  try {
+    const saved = localStorage.getItem(STUDIO_DRAFT_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch (err) {
+    console.error("Failed to parse saved draft", err);
+    return {};
+  }
+}
+
 export default function Studio() {
-  const [title, setTitle] = useState("Exploring Advanced Robotics with ESP32");
-  const [slug, setSlug] = useState("exploring-advanced-robotics-esp32");
-  const [category, setCategory] = useState<NoteCategory>("Robotics");
-  const [tagsInput, setTagsInput] = useState("ESP32, Robotics, C++, Wireless");
-  const [coverImage, setCoverImage] = useState("/projects/humanoid-robot.png");
+  const [draft] = useState(loadStudioDraft);
+
+  const [title, setTitle] = useState(draft.title ?? "Exploring Advanced Robotics with ESP32");
+  const [slug, setSlug] = useState(draft.slug ?? "exploring-advanced-robotics-esp32");
+  const [category, setCategory] = useState<NoteCategory>(draft.category ?? "Robotics");
+  const [tagsInput, setTagsInput] = useState(draft.tagsInput ?? "ESP32, Robotics, C++, Wireless");
+  const [coverImage, setCoverImage] = useState(draft.coverImage ?? "/projects/humanoid-robot.png");
   const [excerpt, setExcerpt] = useState(
-    "How to orchestrate low-latency motor control and wireless telemetry using FreeRTOS on ESP32."
+    draft.excerpt ?? "How to orchestrate low-latency motor control and wireless telemetry using FreeRTOS on ESP32."
   );
-  const [content, setContent] = useState(DEFAULT_SAMPLE_CONTENT);
+  const [content, setContent] = useState(draft.content ?? DEFAULT_SAMPLE_CONTENT);
 
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"split" | "editor" | "preview">("split");
@@ -79,9 +103,11 @@ export default function Studio() {
     setSlug(autoSlug);
   };
 
-  // Auto-save draft in localStorage
+  // Auto-save draft in localStorage. The "Draft Saved" pulse is deferred out
+  // of the effect body (rather than set synchronously) to avoid triggering a
+  // cascading render during the sync-to-localStorage effect itself.
   useEffect(() => {
-    const draft = {
+    const draftToSave: StudioDraft = {
       title,
       slug,
       category,
@@ -90,30 +116,15 @@ export default function Studio() {
       excerpt,
       content,
     };
-    localStorage.setItem("chris_notes_studio_draft", JSON.stringify(draft));
-    setAutoSaved(true);
-    const timer = setTimeout(() => setAutoSaved(false), 1500);
-    return () => clearTimeout(timer);
-  }, [title, slug, category, tagsInput, coverImage, excerpt, content]);
+    localStorage.setItem(STUDIO_DRAFT_KEY, JSON.stringify(draftToSave));
 
-  // Load saved draft on mount if available
-  useEffect(() => {
-    const saved = localStorage.getItem("chris_notes_studio_draft");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.title) setTitle(parsed.title);
-        if (parsed.slug) setSlug(parsed.slug);
-        if (parsed.category) setCategory(parsed.category);
-        if (parsed.tagsInput) setTagsInput(parsed.tagsInput);
-        if (parsed.coverImage) setCoverImage(parsed.coverImage);
-        if (parsed.excerpt) setExcerpt(parsed.excerpt);
-        if (parsed.content) setContent(parsed.content);
-      } catch (err) {
-        console.error("Failed to parse saved draft", err);
-      }
-    }
-  }, []);
+    const showTimer = setTimeout(() => setAutoSaved(true), 0);
+    const hideTimer = setTimeout(() => setAutoSaved(false), 1500);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
+  }, [title, slug, category, tagsInput, coverImage, excerpt, content]);
 
   const tags = tagsInput
     .split(",")

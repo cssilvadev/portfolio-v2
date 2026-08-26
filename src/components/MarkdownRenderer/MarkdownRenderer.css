@@ -324,6 +324,52 @@
   color: #d2a8ff; /* Purple */
 }
 
+/* =========================================
+   ARCHITECTURE DIAGRAMS
+   ========================================= */
+
+.md-diagram {
+  margin: 1.8rem 0;
+  padding: 1.4rem;
+  border-radius: 12px;
+  background: #0d0d11;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+}
+
+[data-theme="light"] .md-diagram {
+  background: #1e1e24;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.diagram-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.diagram-row + .diagram-row {
+  margin-top: 0.9rem;
+}
+
+.diagram-node {
+  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-size: 0.85rem;
+  color: #d6deeb;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  white-space: nowrap;
+}
+
+.diagram-arrow {
+  color: var(--accent);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
 /* Images */
 .md-image-wrapper {
   margin: 2rem 0;

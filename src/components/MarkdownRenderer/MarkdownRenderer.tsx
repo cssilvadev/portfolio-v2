@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaCopy, FaCheck, FaInfoCircle, FaLightbulb, FaExclamationTriangle, FaFire } from "react-icons/fa";
+import { getAssetUrl } from "../../utils/assets";
 import "./MarkdownRenderer.css";
 
 interface MarkdownRendererProps {
@@ -37,7 +38,7 @@ function highlightCode(code: string, lang: string): React.ReactNode[] {
     }
 
     // Tokenize line by regex
-    const tokens = line.split(/([a-zA-Z_][a-zA-Z0-9_]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`[^\`]*`|\/\/.*|\b\d+\b|[-+/*=<>!&|?:;,.()\[\]{}]+|\s+)/g).filter(Boolean);
+    const tokens = line.split(/([a-zA-Z_][a-zA-Z0-9_]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`[^`]*`|\/\/.*|\b\d+\b|[-+/*=<>!&|?:;,.()[\]{}]+|\s+)/g).filter(Boolean);
 
     return (
       <div key={lineIdx} className="code-line">
@@ -105,6 +106,34 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
   );
 }
 
+// Simple text-based architecture diagrams: each line is a chain of nodes
+// separated by "->", rendered as connected boxes. e.g.
+// ```diagram
+// STM32 (PB9 TX) -> TJA1050 TXD -> CAN Bus
+// ```
+function DiagramFlow({ code }: { code: string }) {
+  const rows = code
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.split("->").map((node) => node.trim()).filter(Boolean));
+
+  return (
+    <div className="md-diagram">
+      {rows.map((nodes, rowIdx) => (
+        <div className="diagram-row" key={rowIdx}>
+          {nodes.map((node, nodeIdx) => (
+            <React.Fragment key={nodeIdx}>
+              <span className="diagram-node">{node}</span>
+              {nodeIdx < nodes.length - 1 && <span className="diagram-arrow">→</span>}
+            </React.Fragment>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // Inline Markdown formatting parser
 function renderInline(text: string): React.ReactNode {
   const parts: React.ReactNode[] = [];
@@ -159,7 +188,7 @@ function renderInline(text: string): React.ReactNode {
     }
 
     // Regular character accumulation
-    const nextSpecial = remaining.search(/[`*\[]/);
+    const nextSpecial = remaining.search(/[`*[]/);
     if (nextSpecial === -1) {
       parts.push(remaining);
       break;
@@ -193,8 +222,13 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         codeLines.push(lines[i]);
         i++;
       }
+      const blockCode = codeLines.join("\n");
       elements.push(
-        <CodeBlock key={elementKey++} code={codeLines.join("\n")} lang={lang} />
+        lang === "diagram" ? (
+          <DiagramFlow key={elementKey++} code={blockCode} />
+        ) : (
+          <CodeBlock key={elementKey++} code={blockCode} lang={lang} />
+        )
       );
       i++;
       continue;
@@ -336,7 +370,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     if (imgMatch) {
       elements.push(
         <div key={elementKey++} className="md-image-wrapper">
-          <img src={imgMatch[2]} alt={imgMatch[1]} className="md-image" />
+          <img src={getAssetUrl(imgMatch[2])} alt={imgMatch[1]} className="md-image" />
           {imgMatch[1] && <span className="md-image-caption">{imgMatch[1]}</span>}
         </div>
       );

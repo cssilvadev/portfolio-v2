@@ -56,6 +56,20 @@ export default function ProjectPage() {
                 <h2>{t.projects.overview}</h2>
                 <p>{project.overview}</p>
               </section>
+
+              {project.specs.length > 0 && (
+                <section className="project-specs">
+                  <h2>{t.projects.specsTitle}</h2>
+                  <dl className="specs-grid">
+                    {project.specs.map((spec) => (
+                      <div className="spec-row" key={`${project.slug}-${spec.key}`}>
+                        <dt>{t.projects.specLabels[spec.key] ?? spec.key}</dt>
+                        <dd>{spec.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              )}
             </>
           )}
         </div>

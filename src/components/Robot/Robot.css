@@ -22,6 +22,10 @@
   pointer-events: none;
 }
 
+.robot-skeleton.interactive {
+  pointer-events: auto;
+}
+
 .skeleton-glow-circle {
   width: 220px;
   height: 220px;
@@ -61,6 +65,22 @@
   color: var(--text-muted, #a1a1aa);
   letter-spacing: 0.04em;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.skeleton-action {
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.skeleton-action:hover {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: rgba(99, 102, 241, 0.35);
+  transform: translateY(-1px);
+}
+
+.skeleton-action .spin-icon {
+  animation: none;
 }
 
 .spin-icon {
@@ -111,13 +131,17 @@
   height: 100% !important;
 }
 
-/* STRICTLY PURGE & HIDE SPLINE WATERMARK LOGO AT ALL TIMES */
+/* STRICTLY PURGE & HIDE SPLINE WATERMARK LOGO AT ALL TIMES
+   Scoped rules for the common case (badge nested in our own containers) plus
+   an unscoped fallback, since Spline sometimes appends the badge straight to
+   <body> instead of inside the component's own DOM subtree. */
 .spline-container a,
 .spline-container a[href*="spline"],
 .spline-container #spline-logo,
 .robot-wrapper a,
 .robot-wrapper a[href*="spline"],
-.robot-wrapper canvas + a {
+.robot-wrapper canvas + a,
+a[href*="spline.design"] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -127,4 +151,21 @@
   position: absolute !important;
   left: -9999px !important;
   top: -9999px !important;
+}
+
+/* Full-width fade at the bottom of the stage, blending into the page's own
+   background (light or dark) instead of a hardcoded color. This crops a
+   little of the model's feet, but reliably covers the watermark regardless
+   of where exactly it sits or how the scene's animation moves things around
+   — a fixed-size corner patch kept clipping the robot or clashing with the
+   theme instead. */
+.spline-watermark-cover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64px;
+  background: linear-gradient(to bottom, transparent, var(--bg) 60%);
+  z-index: 5;
+  pointer-events: none;
 }
