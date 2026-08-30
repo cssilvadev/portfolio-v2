@@ -4,7 +4,21 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>portfolio</title>
+    <title>Christian Silva — Full Stack & Firmware Engineer</title>
+    <meta
+      name="description"
+      content="Portfolio of Christian Silva: full stack and firmware engineer working on STM32/ESP32 robotics, CAN bus networks, and interactive web systems."
+    />
+    <script>
+      // Reverses the redirect from 404.html: restores the real deep-link URL
+      // before React Router mounts, so a direct visit or refresh works.
+      (function () {
+        var redirect = new URLSearchParams(location.search).get("redirect");
+        if (redirect) {
+          history.replaceState(null, "", "/portfolio-v2/" + redirect);
+        }
+      })();
+    </script>
     <link
   rel="preconnect"
   href="https://fonts.googleapis.com"

@@ -23,7 +23,6 @@ export interface Translations {
     overview: string;
     specsTitle: string;
     specLabels: Record<string, string>;
-    projectDescriptions: Record<string, string>;
   };
   notes: {
     title: string;
@@ -75,6 +74,11 @@ export interface Translations {
     message: string;
     sendBtn: string;
     sentSuccess: string;
+  };
+  notFoundPage: {
+    title: string;
+    desc: string;
+    backBtn: string;
   };
   subscription: {
     modalTitle: string;
@@ -145,13 +149,6 @@ export const translations: Record<Language, Translations> = {
         voice: "Voice Pipeline",
         llm: "Language Model",
       },
-      projectDescriptions: {
-        "arm-robot": "Firmware and desktop interface for a Robotic Arm.",
-        "g27-pedal-adapter": "Custom USB HID Pedal Adapter.",
-        "humanoid-robot": "Humanoid robot with ESP32 using MAUI to control via Android Phone.",
-        "interactive-portfolio": "Personal portfolio with interactive visuals.",
-        "quadruped-robot": "Quadruped robot with ESP32 using MAUI to control via Android Phone.",
-      },
     },
     notes: {
       title: "NOTES & LOGS",
@@ -204,6 +201,11 @@ export const translations: Record<Language, Translations> = {
       message: "Message",
       sendBtn: "Send",
       sentSuccess: "Message sent successfully!",
+    },
+    notFoundPage: {
+      title: "Page not found",
+      desc: "The page you're looking for doesn't exist or was moved.",
+      backBtn: "Back to home",
     },
     subscription: {
       modalTitle: "Unlock Portfolio PRO",
@@ -272,13 +274,6 @@ export const translations: Record<Language, Translations> = {
         voice: "Pipeline de Voz",
         llm: "Modelo de Linguagem",
       },
-      projectDescriptions: {
-        "arm-robot": "Firmware e interface desktop para Braço Robótico.",
-        "g27-pedal-adapter": "Adaptador USB HID personalizado para pedais.",
-        "humanoid-robot": "Robô humanóide com ESP32 controlado via aplicativo MAUI no Android.",
-        "interactive-portfolio": "Portfólio pessoal com elementos visuais 3D e interativos.",
-        "quadruped-robot": "Robô quadrúpede com ESP32 controlado via aplicativo MAUI no Android.",
-      },
     },
     notes: {
       title: "NOTAS & LOGS",
@@ -331,6 +326,11 @@ export const translations: Record<Language, Translations> = {
       message: "Mensagem",
       sendBtn: "Enviar",
       sentSuccess: "Mensagem enviada com sucesso!",
+    },
+    notFoundPage: {
+      title: "Página não encontrada",
+      desc: "A página que você procura não existe ou foi movida.",
+      backBtn: "Voltar para o início",
     },
     subscription: {
       modalTitle: "Desbloqueie o Portfolio PRO",
@@ -399,13 +399,6 @@ export const translations: Record<Language, Translations> = {
         voice: "Pipeline de Voz",
         llm: "Modelo de Lenguaje",
       },
-      projectDescriptions: {
-        "arm-robot": "Firmware e interfaz de escritorio para Brazo Robótico.",
-        "g27-pedal-adapter": "Adaptador USB HID personalizado para pedales.",
-        "humanoid-robot": "Robot humanoide con ESP32 controlado mediante aplicación MAUI en Android.",
-        "interactive-portfolio": "Portafolio personal con elementos visuales 3D e interactivos.",
-        "quadruped-robot": "Robot cuadrúpedo con ESP32 controlado mediante aplicación MAUI en Android.",
-      },
     },
     notes: {
       title: "NOTAS Y REGISTROS",
@@ -458,6 +451,11 @@ export const translations: Record<Language, Translations> = {
       message: "Mensaje",
       sendBtn: "Enviar",
       sentSuccess: "¡Mensaje enviado con éxito!",
+    },
+    notFoundPage: {
+      title: "Página no encontrada",
+      desc: "La página que buscas no existe o fue movida.",
+      backBtn: "Volver al inicio",
     },
     subscription: {
       modalTitle: "Desbloquea Portfolio PRO",

@@ -28,3 +28,6 @@ dist
 .vite
 .env
 
+# Local safety copies made before large refactors
+backups/
+
