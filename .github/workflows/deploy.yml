@@ -1,8 +1,14 @@
 name: Deploy to GitHub Pages
 
 # The site was going stale because deploys were a manual, easy-to-forget
-# step (build locally, push dist/ to gh-pages by hand). This automates it:
-# every push to main rebuilds and republishes automatically.
+# step. This automates it: every push to main builds and publishes through
+# GitHub's native Pages deployment (the "github-pages" environment), which
+# is what this repo's Pages settings actually use.
+#
+# NOTE: the "github-pages" environment's deployment protection rules must
+# allow the "main" branch (Settings -> Environments -> github-pages ->
+# Deployment branches and tags). It was previously locked to "gh-pages"
+# only, which silently blocked every deploy from this workflow.
 
 on:
   push:
@@ -10,14 +16,16 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages-deploy
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,8 +48,24 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          path: ./dist
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
