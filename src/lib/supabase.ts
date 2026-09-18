@@ -1,7 +1,26 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim();
-const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim();
+const readEnvValue = (rawValue: string | undefined, acceptedNames: string[]) => {
+  if (!rawValue) return undefined;
+
+  const lines = rawValue.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const namedLine = lines.find((line) =>
+    acceptedNames.some((name) => line.startsWith(`${name}=`)),
+  );
+  const candidate = namedLine ?? lines[0];
+  const assignment = candidate.match(/^[A-Z][A-Z0-9_]*\s*=\s*(.+)$/);
+
+  return (assignment?.[1] ?? candidate).trim().replace(/^['"]|['"]$/g, "");
+};
+
+const supabaseUrl = readEnvValue(
+  import.meta.env.VITE_SUPABASE_URL as string | undefined,
+  ["VITE_SUPABASE_URL", "SUPABASE_URL"],
+);
+const supabaseAnonKey = readEnvValue(
+  import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined,
+  ["VITE_SUPABASE_ANON_KEY", "SUPABASE_PUBLISHABLE_KEY"],
+);
 
 const isValidSupabaseUrl = (value: string | undefined) => {
   if (!value) return false;
