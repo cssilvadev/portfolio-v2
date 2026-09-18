@@ -125,9 +125,9 @@ create index if not exists rate_limit_buckets_updated_at_idx
 
 insert into public.billing_plans (slug, name, description, kind, interval, currency, price_cents, active)
 values
-  ('pro-monthly', 'Portfolio PRO monthly', 'Access to protected portfolio features.', 'recurring', 'month', 0, false),
-  ('pro-yearly', 'Portfolio PRO yearly', 'Access to protected portfolio features.', 'recurring', 'year', 0, false),
-  ('pro-lifetime', 'Portfolio PRO lifetime', 'Permanent access to protected portfolio features.', 'lifetime', 'once', 0, false)
+  ('pro-monthly', 'Portfolio PRO monthly', 'Access to protected portfolio features.', 'recurring', 'month', 'brl', 0, false),
+  ('pro-yearly', 'Portfolio PRO yearly', 'Access to protected portfolio features.', 'recurring', 'year', 'brl', 0, false),
+  ('pro-lifetime', 'Portfolio PRO lifetime', 'Permanent access to protected portfolio features.', 'lifetime', 'once', 'brl', 0, false)
 on conflict (slug) do nothing;
 
 alter table public.profiles enable row level security;
