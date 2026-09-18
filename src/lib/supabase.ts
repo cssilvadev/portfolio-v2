@@ -1,5 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
+// These values are intentionally public. Supabase publishable keys identify the
+// project in browser apps; authorization remains enforced by Auth and RLS.
+const defaultSupabaseUrl = "https://wigksclnaybjqmoktsje.supabase.co";
+const defaultSupabasePublishableKey = "sb_publishable_9sR0LIG7AWja9REynvnPBw_VDJUX-Jc";
+
 const readEnvValue = (rawValue: string | undefined, acceptedNames: string[]) => {
   if (!rawValue) return undefined;
 
@@ -13,11 +18,11 @@ const readEnvValue = (rawValue: string | undefined, acceptedNames: string[]) => 
   return (assignment?.[1] ?? candidate).trim().replace(/^['"]|['"]$/g, "");
 };
 
-const supabaseUrl = readEnvValue(
+const configuredSupabaseUrl = readEnvValue(
   import.meta.env.VITE_SUPABASE_URL as string | undefined,
   ["VITE_SUPABASE_URL", "SUPABASE_URL"],
 );
-const supabaseAnonKey = readEnvValue(
+const configuredSupabaseAnonKey = readEnvValue(
   import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined,
   ["VITE_SUPABASE_ANON_KEY", "SUPABASE_PUBLISHABLE_KEY"],
 );
@@ -34,11 +39,24 @@ const isValidSupabaseUrl = (value: string | undefined) => {
   }
 };
 
+const isValidPublishableKey = (value: string | undefined) => Boolean(
+  value &&
+  !value.startsWith("your_") &&
+  !value.includes("placeholder") &&
+  !value.startsWith("sb_secret_"),
+);
+
+const supabaseUrl = isValidSupabaseUrl(configuredSupabaseUrl)
+  ? configuredSupabaseUrl
+  : defaultSupabaseUrl;
+const supabaseAnonKey = isValidPublishableKey(configuredSupabaseAnonKey)
+  ? configuredSupabaseAnonKey
+  : defaultSupabasePublishableKey;
+
 export const supabase = isValidSupabaseUrl(supabaseUrl) &&
   supabaseUrl &&
   supabaseAnonKey &&
-  !supabaseAnonKey.startsWith("your_") &&
-  !supabaseAnonKey.includes("placeholder")
+  isValidPublishableKey(supabaseAnonKey)
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         flowType: "pkce",
