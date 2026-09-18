@@ -60,6 +60,7 @@
 .projects-marquee-set {
   display: flex;
   gap: 2.5rem;
+  padding-right: 2.5rem;
 }
 
 @keyframes scroll-left {
@@ -78,6 +79,8 @@
 .project-card {
   width: min(390px, 78vw);
   flex: 0 0 min(390px, 78vw);
+  display: flex;
+  flex-direction: column;
   padding: 2.5rem;
   border-radius: 18px;
   margin-top: 20px;
@@ -139,6 +142,7 @@
 .project-main h3 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
+  overflow-wrap: anywhere;
 }
 
 .project-main p {
@@ -147,25 +151,31 @@
   margin-bottom: 1.5rem;
 }
 
+.project-main {
+  flex: 1;
+}
+
 /* =========================
    FOOTER
 ========================= */
 
 .project-footer {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.9rem 1rem;
   align-items: center;
+  margin-top: auto;
 }
 
 .project-date {
+  grid-column: 1;
+  grid-row: 2;
   font-size: 0.85rem;
   color: var(--text-muted);
 }
 
 .project-footer-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  display: contents;
 }
 
 /* =========================
@@ -173,7 +183,10 @@
 ========================= */
 
 .project-stack {
+  grid-column: 1 / -1;
+  grid-row: 1;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   list-style: none;
   padding: 0;
@@ -193,6 +206,13 @@
 ========================= */
 
 .project-view {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   padding: 0.5rem 1.1rem;
   min-height: 44px;
   border-radius: 999px;
@@ -203,6 +223,9 @@
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.04em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
@@ -232,7 +255,29 @@
   }
 
   .project-card {
-    min-width: 300px;
+    width: min(360px, calc(100vw - 3rem));
+    min-width: 0;
+    flex-basis: min(360px, calc(100vw - 3rem));
+  }
+}
+
+@media screen and (max-width: 520px) {
+  .projects-header {
+    margin-bottom: 2.5rem;
+    padding-inline: 1rem;
+  }
+
+  .section-inner.projects {
+    padding-inline: 1rem;
+  }
+
+  .project-card {
+    padding: 1.25rem;
+  }
+
+  .projects-marquee-set {
+    gap: 1rem;
+    padding-right: 1rem;
   }
 }
 
