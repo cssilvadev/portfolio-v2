@@ -73,34 +73,56 @@ export interface Translations {
     email: string;
     message: string;
     sendBtn: string;
+    sending: string;
     sentSuccess: string;
+    sendError: string;
+    endpointMissing: string;
+    emailFallback: string;
+  };
+  auth: {
+    signIn: string;
+    signUp: string;
+    createAccount: string;
+    fullName: string;
+    email: string;
+    password: string;
+    forgotPassword: string;
+    resetPassword: string;
+    sendReset: string;
+    backToSignIn: string;
+    checkEmail: string;
+    signOut: string;
+    account: string;
+    close: string;
+    signingIn: string;
+    signingUp: string;
+    resetting: string;
+    authNotConfigured: string;
+    authFailed: string;
+    passwordMin: string;
+    passwordUpdated: string;
+    confirmPassword: string;
+    admin: string;
+  };
+  billing: {
+    upgrade: string;
+    monthly: string;
+    yearly: string;
+    lifetime: string;
+    subscribe: string;
+    active: string;
+    unavailable: string;
+    checkoutError: string;
+    checkoutSuccess: string;
+    checkoutCancelled: string;
+    signInRequired: string;
+    free: string;
+    pro: string;
   };
   notFoundPage: {
     title: string;
     desc: string;
     backBtn: string;
-  };
-  subscription: {
-    modalTitle: string;
-    subtitle: string;
-    monthlyTab: string;
-    annualTab: string;
-    discountBadge: string;
-    feature1Title: string;
-    feature1Desc: string;
-    feature2Title: string;
-    feature2Desc: string;
-    feature3Title: string;
-    feature3Desc: string;
-    priceAmountMonthly: string;
-    priceAmountAnnual: string;
-    pricePeriodMonthly: string;
-    pricePeriodAnnual: string;
-    priceDesc: string;
-    acceptedPaymentsLabel: string;
-    subscribeBtn: string;
-    signInToSub: string;
-    activeSub: string;
   };
 }
 
@@ -200,34 +222,29 @@ export const translations: Record<Language, Translations> = {
       email: "Email",
       message: "Message",
       sendBtn: "Send",
+      sending: "Sending…",
       sentSuccess: "Message sent successfully!",
+      sendError: "The message could not be sent. Please try again or use email.",
+      endpointMissing: "Contact form is not configured yet. Please use email instead.",
+      emailFallback: "Send by email",
+    },
+    auth: {
+      signIn: "Sign In", signUp: "Sign Up", createAccount: "Create account", fullName: "Full name",
+      email: "Email", password: "Password", forgotPassword: "Forgot password?", resetPassword: "Reset password",
+      sendReset: "Send reset link", backToSignIn: "Back to sign in", checkEmail: "Check your email for the next step.",
+      signOut: "Sign out", account: "Account", close: "Close", signingIn: "Signing in…", signingUp: "Creating account…",
+      resetting: "Sending…", authNotConfigured: "Authentication is not configured yet.", authFailed: "Authentication could not be completed.", passwordMin: "Use at least 8 characters.", passwordUpdated: "Password updated successfully.", confirmPassword: "Confirm password", admin: "Admin",
+    },
+    billing: {
+      upgrade: "Unlock PRO", monthly: "Monthly", yearly: "Yearly", lifetime: "Lifetime", subscribe: "Continue to checkout",
+      active: "Active plan", unavailable: "This plan is not configured yet.", checkoutError: "Checkout could not be started.",
+      checkoutSuccess: "Payment received. Your access will be updated after confirmation.", checkoutCancelled: "Checkout cancelled.",
+      signInRequired: "Sign in to choose a plan.", free: "Free", pro: "PRO",
     },
     notFoundPage: {
       title: "Page not found",
       desc: "The page you're looking for doesn't exist or was moved.",
       backBtn: "Back to home",
-    },
-    subscription: {
-      modalTitle: "Unlock Portfolio PRO",
-      subtitle: "Get unrestricted access to deep-dive engineering blueprints, source code, and studio tools.",
-      monthlyTab: "Monthly",
-      annualTab: "Annual",
-      discountBadge: "Save 20%",
-      feature1Title: "Exclusive Firmware & Robotics Notes",
-      feature1Desc: "Complete STM32, FreeRTOS, CAN Bus, & IK mathematical breakdowns.",
-      feature2Title: "Note Studio & Markdown Tools",
-      feature2Desc: "Export ready-to-publish technical articles with high-speed syntax highlighting.",
-      feature3Title: "Priority Q&A & Code Access",
-      feature3Desc: "Direct priority support and early access to hardware repositories.",
-      priceAmountMonthly: "$5",
-      priceAmountAnnual: "$48",
-      pricePeriodMonthly: "/ month",
-      pricePeriodAnnual: "/ year ($4/mo)",
-      priceDesc: "Cancel anytime. Safe & secure payment.",
-      acceptedPaymentsLabel: "Accepted Payment Methods:",
-      subscribeBtn: "Subscribe Now",
-      signInToSub: "Sign In to Subscribe",
-      activeSub: "Active Pro Subscriber",
     },
   },
   pt: {
@@ -325,34 +342,29 @@ export const translations: Record<Language, Translations> = {
       email: "E-mail",
       message: "Mensagem",
       sendBtn: "Enviar",
+      sending: "Enviando…",
       sentSuccess: "Mensagem enviada com sucesso!",
+      sendError: "Não foi possível enviar a mensagem. Tente novamente ou use o e-mail.",
+      endpointMissing: "O formulário ainda não está configurado. Use o e-mail enquanto isso.",
+      emailFallback: "Enviar por e-mail",
+    },
+    auth: {
+      signIn: "Entrar", signUp: "Cadastrar", createAccount: "Criar conta", fullName: "Nome completo",
+      email: "E-mail", password: "Senha", forgotPassword: "Esqueceu a senha?", resetPassword: "Redefinir senha",
+      sendReset: "Enviar link de redefinição", backToSignIn: "Voltar para entrar", checkEmail: "Confira seu e-mail para continuar.",
+      signOut: "Sair", account: "Conta", close: "Fechar", signingIn: "Entrando…", signingUp: "Criando conta…",
+      resetting: "Enviando…", authNotConfigured: "A autenticação ainda não está configurada.", authFailed: "Não foi possível concluir a autenticação.", passwordMin: "Use pelo menos 8 caracteres.", passwordUpdated: "Senha atualizada com sucesso.", confirmPassword: "Confirme a senha", admin: "Admin",
+    },
+    billing: {
+      upgrade: "Desbloquear PRO", monthly: "Mensal", yearly: "Anual", lifetime: "Vitalício", subscribe: "Continuar para pagamento",
+      active: "Plano ativo", unavailable: "Este plano ainda não está configurado.", checkoutError: "Não foi possível iniciar o pagamento.",
+      checkoutSuccess: "Pagamento recebido. O acesso será atualizado após a confirmação.", checkoutCancelled: "Pagamento cancelado.",
+      signInRequired: "Entre para escolher um plano.", free: "Grátis", pro: "PRO",
     },
     notFoundPage: {
       title: "Página não encontrada",
       desc: "A página que você procura não existe ou foi movida.",
       backBtn: "Voltar para o início",
-    },
-    subscription: {
-      modalTitle: "Desbloqueie o Portfolio PRO",
-      subtitle: "Acesso ilimitado a blueprints de engenharia, código-fonte de firmware e ferramentas do Studio.",
-      monthlyTab: "Mensal",
-      annualTab: "Anual",
-      discountBadge: "Economize 20%",
-      feature1Title: "Notas Exclusivas de Firmware & Robótica",
-      feature1Desc: "Análises completas de STM32, FreeRTOS, CAN Bus e matemática de Cinemática Inversa.",
-      feature2Title: "Note Studio & Ferramentas Markdown",
-      feature2Desc: "Exporte artigos técnicos prontos para publicação com destaque de sintaxe.",
-      feature3Title: "Suporte Prioritário & Acesso ao Código",
-      feature3Desc: "Suporte direto prioritário e acesso antecipado aos repositórios de hardware.",
-      priceAmountMonthly: "R$ 25",
-      priceAmountAnnual: "R$ 240",
-      pricePeriodMonthly: "/ mês",
-      pricePeriodAnnual: "/ ano (R$ 20/mês)",
-      priceDesc: "Cancele quando quiser. Pagamento 100% seguro.",
-      acceptedPaymentsLabel: "Formas de Pagamento Aceitas:",
-      subscribeBtn: "Assinar Agora",
-      signInToSub: "Faça Login para Assinar",
-      activeSub: "Assinante Pro Ativo",
     },
   },
   es: {
@@ -450,34 +462,29 @@ export const translations: Record<Language, Translations> = {
       email: "Correo electrónico",
       message: "Mensaje",
       sendBtn: "Enviar",
+      sending: "Enviando…",
       sentSuccess: "¡Mensaje enviado con éxito!",
+      sendError: "No se pudo enviar el mensaje. Inténtalo de nuevo o usa el correo electrónico.",
+      endpointMissing: "El formulario todavía no está configurado. Usa el correo electrónico.",
+      emailFallback: "Enviar por correo",
+    },
+    auth: {
+      signIn: "Iniciar sesión", signUp: "Registrarse", createAccount: "Crear cuenta", fullName: "Nombre completo",
+      email: "Correo electrónico", password: "Contraseña", forgotPassword: "¿Olvidaste tu contraseña?", resetPassword: "Restablecer contraseña",
+      sendReset: "Enviar enlace", backToSignIn: "Volver a iniciar sesión", checkEmail: "Revisa tu correo para continuar.",
+      signOut: "Cerrar sesión", account: "Cuenta", close: "Cerrar", signingIn: "Iniciando sesión…", signingUp: "Creando cuenta…",
+      resetting: "Enviando…", authNotConfigured: "La autenticación aún no está configurada.", authFailed: "No se pudo completar la autenticación.", passwordMin: "Usa al menos 8 caracteres.", passwordUpdated: "Contraseña actualizada correctamente.", confirmPassword: "Confirma la contraseña", admin: "Admin",
+    },
+    billing: {
+      upgrade: "Desbloquear PRO", monthly: "Mensual", yearly: "Anual", lifetime: "Vitalicio", subscribe: "Continuar al pago",
+      active: "Plan activo", unavailable: "Este plan aún no está configurado.", checkoutError: "No se pudo iniciar el pago.",
+      checkoutSuccess: "Pago recibido. El acceso se actualizará tras la confirmación.", checkoutCancelled: "Pago cancelado.",
+      signInRequired: "Inicia sesión para elegir un plan.", free: "Gratis", pro: "PRO",
     },
     notFoundPage: {
       title: "Página no encontrada",
       desc: "La página que buscas no existe o fue movida.",
       backBtn: "Volver al inicio",
-    },
-    subscription: {
-      modalTitle: "Desbloquea Portfolio PRO",
-      subtitle: "Acceso ilimitado a diseños de ingeniería, código fuente de firmware y herramientas del Studio.",
-      monthlyTab: "Mensual",
-      annualTab: "Anual",
-      discountBadge: "Ahorra 20%",
-      feature1Title: "Notas Exclusivas de Firmware y Robótica",
-      feature1Desc: "Análisis completos de STM32, FreeRTOS, CAN Bus y matemática de Cinemática Inversa.",
-      feature2Title: "Estudio de Notas y Herramientas Markdown",
-      feature2Desc: "Exporta artículos técnicos listos para publicar con resaltado de sintaxis.",
-      feature3Title: "Soporte Prioritario y Acceso al Código",
-      feature3Desc: "Soporte directo prioritario y acceso anticipado a repositorios de hardware.",
-      priceAmountMonthly: "5 €",
-      priceAmountAnnual: "48 €",
-      pricePeriodMonthly: "/ mes",
-      pricePeriodAnnual: "/ año (4€/mes)",
-      priceDesc: "Cancela en cualquier momento. Pago 100% seguro.",
-      acceptedPaymentsLabel: "Métodos de Pago Aceptados:",
-      subscribeBtn: "Suscribirse Ahora",
-      signInToSub: "Inicia Sesión para Suscribirte",
-      activeSub: "Suscriptor Pro Activo",
     },
   },
 };

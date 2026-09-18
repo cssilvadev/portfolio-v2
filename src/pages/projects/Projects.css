@@ -48,13 +48,18 @@
 
 .projects-marquee {
   display: flex;
-  gap: 2.5rem;
   width: max-content;
   animation: scroll-left 45s linear infinite;
 }
 
-.projects-marquee:hover {
+.projects-marquee:hover,
+.projects-marquee:focus-within {
   animation-play-state: paused;
+}
+
+.projects-marquee-set {
+  display: flex;
+  gap: 2.5rem;
 }
 
 @keyframes scroll-left {
@@ -71,6 +76,8 @@
 ========================= */
 
 .project-card {
+  width: min(390px, 78vw);
+  flex: 0 0 min(390px, 78vw);
   padding: 2.5rem;
   border-radius: 18px;
   margin-top: 20px;
@@ -98,12 +105,32 @@
 
 .project-image-top {
   width: 100%;
-  height: 160px;
+  height: 100%;
   border-radius: 12px;
   object-fit: cover;
   background: var(--bg-soft);
   margin-bottom: 1.5rem;
 }
+
+.project-image-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.project-image-frame.image-error::after {
+  content: "Image unavailable";
+  display: grid;
+  height: 100%;
+  place-items: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.project-image-frame.image-error .project-image-top { display: none; }
 
 /* =========================
    TEXT
@@ -167,6 +194,7 @@
 
 .project-view {
   padding: 0.5rem 1.1rem;
+  min-height: 44px;
   border-radius: 999px;
   border: none;
   background: var(--accent);
@@ -206,4 +234,16 @@
   .project-card {
     min-width: 300px;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-marquee {
+    width: 100%;
+    overflow-x: auto;
+    animation: none;
+    scrollbar-width: thin;
+  }
+
+  .projects-marquee-set { width: max-content; }
+  .projects-marquee-clone { display: none; }
 }

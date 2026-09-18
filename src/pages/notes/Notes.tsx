@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBookOpen, FaClock, FaTag, FaPlus } from "react-icons/fa";
-import { getAllLocalizedNotes, type NoteCategory } from "../../data/notes";
+import { getAllLocalizedNotes, formatNoteDate, type NoteCategory } from "../../data/notes";
 import { useLanguage } from "../../context/LanguageContext";
+import { useContent } from "../../context/ContentContext";
 import "./Notes.css";
 
 export default function Notes() {
   const { t, language } = useLanguage();
+  const { notes } = useContent();
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<string>("all");
 
   const categoryOptions: { key: string; label: string; category?: NoteCategory }[] = [
@@ -14,10 +16,11 @@ export default function Notes() {
     { key: "firmware", label: t.notes.categories.firmware, category: "Firmware & Embedded" },
     { key: "ai", label: t.notes.categories.ai, category: "AI & Workflows" },
     { key: "robotics", label: t.notes.categories.robotics, category: "Robotics" },
+    { key: "software", label: t.notes.categories.software, category: "Software Engineering" },
   ];
 
   const currentOption = categoryOptions.find((c) => c.key === selectedCategoryKey);
-  const localizedNotes = getAllLocalizedNotes(language);
+  const localizedNotes = getAllLocalizedNotes(language, notes);
   const filteredNotes =
     !currentOption || currentOption.key === "all"
       ? localizedNotes
@@ -88,7 +91,7 @@ export default function Notes() {
                 </span>
                 <span className="note-read-time">
                   <FaClock className="badge-icon" />
-                  {note.readingTime}
+                  {note.readingTime} {t.notes.readTime}
                 </span>
               </div>
 
@@ -109,7 +112,7 @@ export default function Notes() {
                 </div>
 
                 <div className="note-footer-action">
-                  <span className="note-date">{note.date}</span>
+                  <span className="note-date">{formatNoteDate(note.date, language)}</span>
                   <Link to={`/notes/${note.slug}`} className="note-read-btn">
                     <FaBookOpen className="read-icon" />
                     {t.notes.readBtn}

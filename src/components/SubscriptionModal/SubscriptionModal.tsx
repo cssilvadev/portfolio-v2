@@ -1,181 +1,125 @@
-import { useState } from "react";
-import { FaCrown, FaCheck, FaTimes, FaShieldAlt, FaTerminal, FaCode, FaArrowRight } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaCrown, FaTimes } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useLanguage } from "../../context/LanguageContext";
+import { supabase, type BillingPlan } from "../../lib/supabase";
 import "./SubscriptionModal.css";
 
-export default function SubscriptionModal() {
+type AvailablePlan = BillingPlan & { active: boolean };
+
+function SubscriptionDialog() {
+  const { language, t } = useLanguage();
   const {
-    isSubscriptionModalOpen,
-    closeSubscriptionModal,
-    subscriptionTier,
     user,
+    subscriptionTier,
     openAuthModal,
+    closeSubscriptionModal,
   } = useAuth();
-  const { t, language } = useLanguage();
+  const [plans, setPlans] = useState<AvailablePlan[]>([]);
+  const [loading, setLoading] = useState(Boolean(supabase));
+  const [busyPlan, setBusyPlan] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
-  const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("annual");
-  if (!isSubscriptionModalOpen) return null;
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeSubscriptionModal();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [closeSubscriptionModal]);
 
-  const subT = t.subscription;
+  useEffect(() => {
+    if (!supabase) return;
 
-  const getCheckoutUrl = (): string | undefined => {
-    const suffix = billingInterval === "annual" ? "_ANNUAL" : "_MONTHLY";
+    let active = true;
+    void supabase
+      .from("billing_plans")
+      .select("id, slug, name, description, kind, interval, currency, price_cents, active")
+      .eq("active", true)
+      .order("price_cents", { ascending: true })
+      .then(({ data, error: queryError }) => {
+        if (!active) return;
+        if (queryError) setError(t.billing.unavailable);
+        setPlans((data as AvailablePlan[] | null) ?? []);
+        setLoading(false);
+      });
 
-    if (language === "pt") {
-      return (
-        import.meta.env[`VITE_CHECKOUT_URL_BRL${suffix}`] ||
-        import.meta.env.VITE_STRIPE_CHECKOUT_URL_BRL ||
-        import.meta.env.VITE_STRIPE_CHECKOUT_URL
-      );
-    } else if (language === "es") {
-      return (
-        import.meta.env[`VITE_CHECKOUT_URL_EUR${suffix}`] ||
-        import.meta.env.VITE_STRIPE_CHECKOUT_URL_EUR ||
-        import.meta.env.VITE_STRIPE_CHECKOUT_URL
-      );
-    } else {
-      return (
-        import.meta.env[`VITE_CHECKOUT_URL_USD${suffix}`] ||
-        import.meta.env.VITE_STRIPE_CHECKOUT_URL_USD ||
-        import.meta.env.VITE_STRIPE_CHECKOUT_URL
-      );
-    }
+    return () => {
+      active = false;
+    };
+  }, [t.billing.unavailable]);
+
+  const formatPrice = (plan: BillingPlan) => new Intl.NumberFormat(language === "pt" ? "pt-BR" : language, {
+    style: "currency",
+    currency: plan.currency.toUpperCase(),
+  }).format(plan.price_cents / 100);
+
+  const planLabel = (plan: BillingPlan) => {
+    if (plan.kind === "lifetime") return t.billing.lifetime;
+    return plan.interval === "year" ? t.billing.yearly : t.billing.monthly;
   };
 
-  const handleSubscribe = () => {
+  const startCheckout = async (plan: AvailablePlan) => {
+    setError("");
     if (!user) {
       closeSubscriptionModal();
-      openAuthModal("signup");
+      openAuthModal("login");
+      return;
+    }
+    if (!supabase) {
+      setError(t.auth.authNotConfigured);
       return;
     }
 
-    const checkoutUrl = getCheckoutUrl();
-    if (checkoutUrl) {
-      try {
-        const destination = new URL(checkoutUrl);
-        if (destination.protocol !== "https:" && destination.protocol !== "http:") {
-          throw new Error("Checkout URL must use HTTP(S).");
-        }
-        destination.searchParams.set("prefilled_email", user.email || "");
-        window.location.assign(destination.toString());
-      } catch {
-        alert("The checkout link is invalid. Please contact the site owner.");
-      }
-    } else {
-      alert(
-        "Checkout is not configured yet. Add a public checkout URL to the deployment environment."
-      );
+    setBusyPlan(plan.slug);
+    const { data, error: functionError } = await supabase.functions.invoke("create-checkout-session", {
+      body: { planSlug: plan.slug },
+    });
+    setBusyPlan(null);
+    if (functionError || typeof data?.url !== "string" || !data.url.startsWith("https://checkout.stripe.com/")) {
+      setError(t.billing.checkoutError);
+      return;
     }
+    window.location.assign(data.url);
   };
 
   return (
-    <div className="sub-overlay" onClick={closeSubscriptionModal}>
-      <div className="sub-card" role="dialog" aria-modal="true" aria-labelledby="subscription-title" onClick={(e) => e.stopPropagation()}>
-        {/* CLOSE BUTTON */}
-        <button className="sub-close-btn" onClick={closeSubscriptionModal} aria-label="Close">
-          <FaTimes />
-        </button>
-
-        {/* TOP BADGE */}
-        <div className="sub-top-pill">
-          <FaCrown className="pill-icon" />
-          <span>CS.DEV PRO</span>
-        </div>
-
-        {/* HEADER */}
-        <div className="sub-header">
-          <h2 id="subscription-title">{subT.modalTitle}</h2>
-          <p className="sub-subtitle">{subT.subtitle}</p>
-        </div>
-
-        {/* MENSAL / ANUAL TOGGLE */}
-        <div className="billing-toggle-wrapper">
-          <div className="billing-toggle">
-            <button
-              onClick={() => setBillingInterval("monthly")}
-              className={`toggle-option ${billingInterval === "monthly" ? "selected" : ""}`}
-            >
-              {subT.monthlyTab}
-            </button>
-            <button
-              onClick={() => setBillingInterval("annual")}
-              className={`toggle-option ${billingInterval === "annual" ? "selected" : ""}`}
-            >
-              <span>{subT.annualTab}</span>
-              <span className="save-tag">{subT.discountBadge}</span>
-            </button>
+    <div className="subscription-overlay" onMouseDown={(event) => { if (event.currentTarget === event.target) closeSubscriptionModal(); }}>
+      <div className="subscription-card" role="dialog" aria-modal="true" aria-labelledby="subscription-title">
+        <button type="button" className="subscription-close" onClick={closeSubscriptionModal} aria-label={t.auth.close}><FaTimes /></button>
+        <div className="subscription-heading">
+          <FaCrown aria-hidden="true" />
+          <div>
+            <h2 id="subscription-title">{t.billing.upgrade}</h2>
+            <p>{subscriptionTier === "free" ? t.billing.free : `${t.billing.pro} · ${t.billing.active}`}</p>
           </div>
         </div>
 
-        {/* PRICING DISPLAY CARD */}
-        <div className="sub-pricing-box">
-          <div className="price-header">
-            <span className="price-tier-label">PRO SUBSCRIBER</span>
-            <span className="payment-support-tag">PIX · Credit Card · Boleto · PayPal</span>
-          </div>
+        {error && <p className="subscription-message error" role="alert">{error}</p>}
+        {!user && <p className="subscription-message">{t.billing.signInRequired}</p>}
+        {loading && <p className="subscription-message">…</p>}
+        {!loading && plans.length === 0 && <p className="subscription-message">{t.billing.unavailable}</p>}
 
-          <div className="price-display">
-            <span className="price-value">
-              {billingInterval === "annual"
-                ? subT.priceAmountAnnual
-                : subT.priceAmountMonthly}
-            </span>
-            <span className="price-duration">
-              {billingInterval === "annual"
-                ? subT.pricePeriodAnnual
-                : subT.pricePeriodMonthly}
-            </span>
-          </div>
-
-          <p className="price-terms">{subT.priceDesc}</p>
-
-          <button
-            onClick={handleSubscribe}
-            className={`checkout-btn ${subscriptionTier === "pro" ? "pro-active" : ""}`}
-            disabled={subscriptionTier === "pro"}
-          >
-            {subscriptionTier === "pro" ? (
-              <>
-                <FaCheck /> <span>{subT.activeSub}</span>
-              </>
-            ) : (
-              <>
-                <span>{user ? subT.subscribeBtn : subT.signInToSub}</span>
-                <FaArrowRight className="btn-arrow" />
-              </>
-            )}
-          </button>
+        <div className="subscription-plans">
+          {plans.map((plan) => (
+            <article className="subscription-plan" key={plan.id}>
+              <div>
+                <h3>{plan.name || planLabel(plan)}</h3>
+                <p>{plan.description || planLabel(plan)}</p>
+              </div>
+              <strong>{formatPrice(plan)}</strong>
+              <button type="button" onClick={() => void startCheckout(plan)} disabled={busyPlan !== null}>
+                {busyPlan === plan.slug ? "…" : subscriptionTier !== "free" ? t.billing.active : t.billing.subscribe}
+              </button>
+            </article>
+          ))}
         </div>
-
-        {/* FEATURES MINIMAL LIST */}
-        <div className="sub-features-list">
-          <div className="feature-row">
-            <FaCode className="f-icon" />
-            <div>
-              <strong>{subT.feature1Title}</strong>
-              <span>{subT.feature1Desc}</span>
-            </div>
-          </div>
-
-          <div className="feature-row">
-            <FaTerminal className="f-icon" />
-            <div>
-              <strong>{subT.feature2Title}</strong>
-              <span>{subT.feature2Desc}</span>
-            </div>
-          </div>
-
-          <div className="feature-row">
-            <FaShieldAlt className="f-icon" />
-            <div>
-              <strong>{subT.feature3Title}</strong>
-              <span>{subT.feature3Desc}</span>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   );
+}
+
+export default function SubscriptionModal() {
+  const { isSubscriptionModalOpen } = useAuth();
+  return isSubscriptionModalOpen ? <SubscriptionDialog /> : null;
 }

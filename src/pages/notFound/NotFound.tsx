@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import Cursor from "../../components/Cursor/Cursor";
 import NavBar from "../../components/NavBar/NavBar";
 import { useLanguage } from "../../context/LanguageContext";
@@ -6,6 +7,11 @@ import "./NotFound.css";
 
 export default function NotFound() {
   const { t } = useLanguage();
+
+  useEffect(() => {
+    document.title = `404 — ${t.notFoundPage.title}`;
+    document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute("content", t.notFoundPage.desc);
+  }, [t]);
 
   return (
     <>

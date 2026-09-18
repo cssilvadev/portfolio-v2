@@ -3,7 +3,7 @@
   justify-content: center; /* horizontal */
   align-items: center;     /* vertical */
   min-height: 100vh;       /* ocupa toda a altura da tela */
-  padding: 0 8vw;          /* padding lateral */
+  padding: 110px 8vw 2rem; /* navbar offset + lateral padding */
   box-sizing: border-box;
 }
 
@@ -51,6 +51,10 @@
 }
 
 @media (max-width: 768px) {
+  .home {
+    padding-top: 96px;
+  }
+
   .hero {
     grid-template-columns: 1fr;
     gap: 3rem;

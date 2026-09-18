@@ -26,7 +26,7 @@ export const projects: Project[] = [
   {
     slug: "arm-robot",
     date: "2024",
-    image: "/projects/haptic-chair.svg",
+    image: "/projects/arm-robot.svg",
     stack: ["STM32", "C", "C#", "WPF", "PWM"],
     specs: [
       { key: "mcu", value: "STM32F103C8T6" },
@@ -56,7 +56,7 @@ export const projects: Project[] = [
   {
     slug: "g27-pedal-adapter",
     date: "2023",
-    image: "/projects/steering-wheel.svg",
+    image: "/projects/g27-pedal-adapter.svg",
     stack: ["STM32", "C", "USB HID"],
     specs: [
       { key: "mcu", value: "STM32F103" },
@@ -179,7 +179,7 @@ export const projects: Project[] = [
   {
     slug: "quadruped-robot",
     date: "2026",
-    image: "/projects/seatbelt.svg",
+    image: "/projects/quadruped-robot.svg",
     stack: ["STM32", "C", "PWM", "FreeRTOS"],
     specs: [
       { key: "mcu", value: "STM32G4" },
@@ -223,13 +223,13 @@ export function getLocalizedProject(project: Project, lang: Language) {
   };
 }
 
-export function getProjectBySlug(slug: string, lang: Language = "en") {
+export function getProjectBySlug(slug: string, lang: Language = "en", source: Project[] = projects) {
   const normalized = slug.toLowerCase().replace(/\.html$/, "");
-  const found = projects.find((p) => p.slug.toLowerCase() === normalized);
+  const found = source.find((p) => p.slug.toLowerCase() === normalized);
   if (!found) return undefined;
   return getLocalizedProject(found, lang);
 }
 
-export function getAllLocalizedProjects(lang: Language = "en") {
-  return projects.map((p) => getLocalizedProject(p, lang));
+export function getAllLocalizedProjects(lang: Language = "en", source: Project[] = projects) {
+  return source.map((p) => getLocalizedProject(p, lang));
 }

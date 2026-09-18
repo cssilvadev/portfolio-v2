@@ -2,6 +2,13 @@ import { useLanguage } from "../../context/LanguageContext";
 import { getAssetUrl } from "../../utils/assets";
 import "./About.css";
 
+const cvAssets = import.meta.glob("/public/cv.pdf", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
+const cvUrl = cvAssets["/public/cv.pdf"];
+
 export default function About() {
   const { t } = useLanguage();
 
@@ -66,9 +73,11 @@ export default function About() {
               </ul>
             </div>
 
-            <a className="about-cv" href={getAssetUrl("/cv.pdf")} target="_blank" rel="noopener noreferrer">
-              {t.about.cvBtn}
-            </a>
+            {cvUrl && (
+              <a className="about-cv" href={cvUrl} target="_blank" rel="noopener noreferrer">
+                {t.about.cvBtn}
+              </a>
+            )}
           </div>
         </div>
       </div>

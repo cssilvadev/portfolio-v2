@@ -18,6 +18,10 @@ function isLikelyLowPowerDevice(): boolean {
   ).matches;
   if (prefersReducedMotion) return true;
 
+  const prefersCoarsePointer = window.matchMedia?.("(pointer: coarse)").matches;
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  if (prefersCoarsePointer || window.innerWidth <= 768 || saveData) return true;
+
   const cores = navigator.hardwareConcurrency;
   if (typeof cores === "number" && cores <= 4) return true;
 

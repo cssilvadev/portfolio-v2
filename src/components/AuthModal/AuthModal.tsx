@@ -1,179 +1,102 @@
-import React, { useState } from "react";
-import { FaGithub, FaEnvelope, FaLock, FaUser, FaTimes, FaShieldAlt } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import { FaEnvelope, FaLock, FaTimes, FaUser } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 import "./AuthModal.css";
 
 export default function AuthModal() {
-  const {
-    isAuthModalOpen,
-    closeAuthModal,
-    authMode,
-    setAuthMode,
-    signInWithEmail,
-    signUpWithEmail,
-    signInWithOAuth,
-  } = useAuth();
-
+  const { t } = useLanguage();
+  const { isAuthModalOpen, authMode, closeAuthModal, openAuthModal, signIn, signUp, resetPassword, updatePassword, authConfigured } = useAuth();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const firstFieldRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isAuthModalOpen) return;
+    firstFieldRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") closeAuthModal(); };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [closeAuthModal, isAuthModalOpen]);
 
   if (!isAuthModalOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg(null);
-    setSubmitting(true);
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    if (!authConfigured) { setError(t.auth.authNotConfigured); return; }
+    if (authMode !== "reset" && password.length < 8) { setError(t.auth.passwordMin); return; }
+    if ((authMode === "signup" || authMode === "update") && password !== confirmation) { setError(t.auth.confirmPassword); return; }
 
+    setBusy(true);
     try {
-      if (authMode === "login") {
-        const { error } = await signInWithEmail(email, password);
-        if (error) setErrorMsg(error.message);
-      } else {
-        const { error } = await signUpWithEmail(email, password, fullName);
-        if (error) {
-          setErrorMsg(error.message);
-        } else {
-          alert("Account created successfully! Check your email to confirm your account.");
-        }
+      if (authMode === "login") await signIn(email, password);
+      if (authMode === "signup") {
+        await signUp(email, password, fullName);
+        setMessage(t.auth.checkEmail);
       }
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "An unexpected authentication error occurred.");
+      if (authMode === "reset") {
+        await resetPassword(email);
+        setMessage(t.auth.checkEmail);
+      }
+      if (authMode === "update") {
+        await updatePassword(password);
+        setPassword("");
+        setConfirmation("");
+        setMessage(t.auth.passwordUpdated);
+      }
+    } catch (caught) {
+      console.warn("Authentication request failed", caught);
+      setError(t.auth.authFailed);
     } finally {
-      setSubmitting(false);
+      setBusy(false);
     }
   };
 
-  const handleOAuth = async (provider: "github" | "google") => {
-    setErrorMsg(null);
-    const { error } = await signInWithOAuth(provider);
-    if (error) setErrorMsg(error.message);
-  };
+  const title = authMode === "login" ? t.auth.signIn : authMode === "signup" ? t.auth.createAccount : authMode === "update" ? t.auth.resetPassword : t.auth.resetPassword;
 
   return (
-    <div className="auth-overlay" onClick={closeAuthModal}>
-      <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={(e) => e.stopPropagation()}>
-        {/* CLOSE BUTTON */}
-        <button className="auth-close-btn" onClick={closeAuthModal} aria-label="Close">
-          <FaTimes />
-        </button>
-
-        {/* HEADER */}
-        <div className="auth-header">
-          <div className="auth-icon-badge">
-            <FaShieldAlt />
+    <div className="auth-overlay" onMouseDown={(event) => { if (event.currentTarget === event.target) closeAuthModal(); }}>
+      <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <button type="button" className="auth-close-btn" onClick={closeAuthModal} aria-label={t.auth.close}><FaTimes /></button>
+        <h2 id="auth-title">{title}</h2>
+        {authMode !== "reset" && authMode !== "update" && (
+          <div className="auth-tabs">
+            <button type="button" className={authMode === "login" ? "active" : ""} onClick={() => { openAuthModal("login"); setError(""); }}>{t.auth.signIn}</button>
+            <button type="button" className={authMode === "signup" ? "active" : ""} onClick={() => { openAuthModal("signup"); setError(""); }}>{t.auth.signUp}</button>
           </div>
-          <h2 id="auth-title">{authMode === "login" ? "Welcome Back" : "Create Account"}</h2>
-          <p className="auth-subtitle">
-            {authMode === "login"
-              ? "Access your engineering dashboard & notes"
-              : "Join to save notes and unlock Pro features"}
-          </p>
-        </div>
+        )}
 
-        {/* TABS */}
-        <div className="auth-tabs">
-          <button
-            type="button"
-            className={`auth-tab ${authMode === "login" ? "active" : ""}`}
-            onClick={() => {
-              setAuthMode("login");
-              setErrorMsg(null);
-            }}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            className={`auth-tab ${authMode === "signup" ? "active" : ""}`}
-            onClick={() => {
-              setAuthMode("signup");
-              setErrorMsg(null);
-            }}
-          >
-            Register
-          </button>
-        </div>
+        {error && <p className="auth-message error" role="alert">{error}</p>}
+        {message && <p className="auth-message success" role="status">{message}</p>}
 
-        {/* ERROR DISPLAY */}
-        {errorMsg && <div className="auth-error-banner">{errorMsg}</div>}
-
-        {/* OAUTH BUTTONS */}
-        <div className="oauth-buttons">
-          <button
-            type="button"
-            onClick={() => handleOAuth("github")}
-            className="oauth-btn github"
-          >
-            <FaGithub className="oauth-icon" />
-            <span>Continue with GitHub</span>
-          </button>
-        </div>
-
-        <div className="auth-divider">
-          <span>or email</span>
-        </div>
-
-        {/* FORM */}
         <form onSubmit={handleSubmit} className="auth-form">
           {authMode === "signup" && (
-            <div className="input-group">
-            <label htmlFor="auth-full-name">Full Name</label>
-              <div className="input-field">
-                <FaUser className="field-icon" />
-                <input
-                  id="auth-full-name"
-                  type="text"
-                  placeholder="Christian Silva"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={authMode === "signup"}
-                />
-              </div>
-            </div>
+            <label><span><FaUser /> {t.auth.fullName}</span><input ref={firstFieldRef} value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" required /></label>
           )}
-
-          <div className="input-group">
-            <label htmlFor="auth-email">Email Address</label>
-            <div className="input-field">
-              <FaEnvelope className="field-icon" />
-              <input
-                  id="auth-email"
-                  type="email"
-                placeholder="dev@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="input-group">
-            <label htmlFor="auth-password">Password</label>
-            <div className="input-field">
-              <FaLock className="field-icon" />
-              <input
-                  id="auth-password"
-                  type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
-          </div>
-
-          <button type="submit" disabled={submitting} className="auth-submit-btn">
-            {submitting
-              ? "Authenticating..."
-              : authMode === "login"
-              ? "Sign In"
-              : "Create Account"}
+          {authMode !== "update" && <label><span><FaEnvelope /> {t.auth.email}</span><input ref={authMode === "signup" ? undefined : firstFieldRef} type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>}
+          {authMode !== "reset" && (
+            <>
+              <label><span><FaLock /> {t.auth.password}</span><input ref={authMode === "update" ? firstFieldRef : undefined} type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={authMode === "login" ? "current-password" : "new-password"} minLength={8} required /></label>
+              {(authMode === "signup" || authMode === "update") && <label><span><FaLock /> {t.auth.confirmPassword}</span><input type="password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="new-password" minLength={8} required /></label>}
+            </>
+          )}
+          <button type="submit" className="auth-submit" disabled={busy}>
+            {busy ? (authMode === "login" ? t.auth.signingIn : authMode === "signup" ? t.auth.signingUp : t.auth.resetting) : authMode === "login" ? t.auth.signIn : authMode === "signup" ? t.auth.createAccount : authMode === "update" ? t.auth.resetPassword : t.auth.sendReset}
           </button>
         </form>
+
+        {authMode === "login" ? (
+          <button type="button" className="auth-link" onClick={() => { openAuthModal("reset"); setError(""); }}>{t.auth.forgotPassword}</button>
+        ) : authMode === "reset" ? (
+          <button type="button" className="auth-link" onClick={() => { openAuthModal("login"); setError(""); }}>{t.auth.backToSignIn}</button>
+        ) : null}
       </div>
     </div>
   );

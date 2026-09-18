@@ -1,194 +1,165 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import type { User, Session } from "@supabase/supabase-js";
-import { supabase, type UserProfile, type SubscriptionTier } from "../lib/supabase";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Session, User } from "@supabase/supabase-js";
+import { supabase, type Profile, type SubscriptionTier } from "../lib/supabase";
 
-interface AuthContextType {
+type AuthContextValue = {
   user: User | null;
   session: Session | null;
-  profile: UserProfile | null;
-  subscriptionTier: SubscriptionTier;
+  profile: Profile | null;
   loading: boolean;
+  authConfigured: boolean;
   isAuthModalOpen: boolean;
-  openAuthModal: (mode?: "login" | "signup") => void;
+  authMode: "login" | "signup" | "reset" | "update";
+  openAuthModal: (mode?: "login" | "signup" | "reset" | "update") => void;
   closeAuthModal: () => void;
-  authMode: "login" | "signup";
-  setAuthMode: (mode: "login" | "signup") => void;
   isSubscriptionModalOpen: boolean;
   openSubscriptionModal: () => void;
   closeSubscriptionModal: () => void;
-  signInWithEmail: (email: string, pass: string) => Promise<{ error: Error | null }>;
-  signUpWithEmail: (email: string, pass: string, name?: string) => Promise<{ error: Error | null }>;
-  signInWithOAuth: (provider: "github" | "google") => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-}
+  subscriptionTier: SubscriptionTier;
+};
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState<boolean>(false);
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(Boolean(supabase));
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup" | "reset" | "update">("login");
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
 
-  const subscriptionTier: SubscriptionTier = profile?.subscription_tier || "free";
+  const fetchProfile = useCallback(async (userId: string) => {
+    if (!supabase) return;
+    const { data } = await supabase.from("profiles").select("id, email, full_name, avatar_url, role, subscription_tier").eq("id", userId).maybeSingle();
+    setProfile((data as Profile | null) ?? null);
+  }, []);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+  useEffect(() => {
+    if (!supabase) {
+      return;
+    }
 
-      if (!error && data) {
-        setProfile(data as UserProfile);
+    let active = true;
+    void supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
+      if (!active) return;
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
+      if (initialSession?.user) await fetchProfile(initialSession.user.id);
+      if (active) setLoading(false);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (!active) return;
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      if (event === "PASSWORD_RECOVERY") {
+        setAuthMode("update");
+        setIsAuthModalOpen(true);
+      }
+      if (nextSession?.user) {
+        window.setTimeout(() => { if (active) void fetchProfile(nextSession.user.id); }, 0);
       } else {
         setProfile(null);
       }
-    } catch (err) {
-      console.warn("Could not fetch user profile:", err);
-      setProfile(null);
-    }
-  };
-
-  useEffect(() => {
-    let mounted = true;
-
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session: initSession } }) => {
-      if (!mounted) return;
-      setSession(initSession);
-      setUser(initSession?.user ?? null);
-      if (initSession?.user) await fetchProfile(initSession.user.id);
       setLoading(false);
     });
 
-    // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        if (!mounted) return;
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-
-        if (newSession?.user) {
-          // Supabase recommends deferring follow-up API calls from this
-          // callback to avoid re-entrant auth-lock contention.
-          setTimeout(() => {
-            if (mounted) void fetchProfile(newSession.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
-      }
-    );
-
     return () => {
-      mounted = false;
-      authListener.subscription.unsubscribe();
+      active = false;
+      listener.subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
 
-  const openAuthModal = (mode: "login" | "signup" = "login") => {
+  const openAuthModal = (mode: "login" | "signup" | "reset" | "update" = "login") => {
     setAuthMode(mode);
     setIsAuthModalOpen(true);
   };
 
-  const closeAuthModal = () => {
+  const signIn = async (email: string, password: string) => {
+    if (!supabase) throw new Error("Authentication is not configured.");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
     setIsAuthModalOpen(false);
   };
 
-  const openSubscriptionModal = () => {
-    setIsSubscriptionModalOpen(true);
-  };
-
-  const closeSubscriptionModal = () => {
-    setIsSubscriptionModalOpen(false);
-  };
-
-  const signInWithEmail = async (email: string, pass: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass,
-    });
-    if (!error) closeAuthModal();
-    return { error: error as Error | null };
-  };
-
-  const signUpWithEmail = async (email: string, pass: string, name?: string) => {
+  const signUp = async (email: string, password: string, fullName: string) => {
+    if (!supabase) throw new Error("Authentication is not configured.");
     const { error } = await supabase.auth.signUp({
       email,
-      password: pass,
+      password,
       options: {
-        data: { full_name: name || "" },
+        data: { full_name: fullName.trim() },
+        emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
       },
     });
-    if (!error) closeAuthModal();
-    return { error: error as Error | null };
+    if (error) throw error;
+    setIsAuthModalOpen(false);
   };
 
-  const signInWithOAuth = async (provider: "github" | "google") => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
-      },
+  const resetPassword = async (email: string) => {
+    if (!supabase) throw new Error("Authentication is not configured.");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}#reset-password`,
     });
-    return { error: error as Error | null };
+    if (error) throw error;
+  };
+
+  const updatePassword = async (password: string) => {
+    if (!supabase) throw new Error("Authentication is not configured.");
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
+    if (!supabase) return;
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
     setProfile(null);
   };
 
   const refreshProfile = async () => {
-    if (user) {
-      await fetchProfile(user.id);
-    }
+    if (user) await fetchProfile(user.id);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        session,
-        profile,
-        subscriptionTier,
-        loading,
-        isAuthModalOpen,
-        openAuthModal,
-        closeAuthModal,
-        authMode,
-        setAuthMode,
-        isSubscriptionModalOpen,
-        openSubscriptionModal,
-        closeSubscriptionModal,
-        signInWithEmail,
-        signUpWithEmail,
-        signInWithOAuth,
-        signOut,
-        refreshProfile,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user,
+      session,
+      profile,
+      loading,
+      authConfigured: Boolean(supabase),
+      isAuthModalOpen,
+      authMode,
+      openAuthModal,
+      closeAuthModal: () => setIsAuthModalOpen(false),
+      isSubscriptionModalOpen,
+      openSubscriptionModal: () => setIsSubscriptionModalOpen(true),
+      closeSubscriptionModal: () => setIsSubscriptionModalOpen(false),
+      signIn,
+      signUp,
+      resetPassword,
+      updatePassword,
+      signOut,
+      refreshProfile,
+      subscriptionTier: profile?.subscription_tier ?? "free",
+    }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
 // The hook intentionally lives beside its provider so consumers share the
 // same context contract; this is safe and does not affect Fast Refresh state.
 // eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
-};
+}

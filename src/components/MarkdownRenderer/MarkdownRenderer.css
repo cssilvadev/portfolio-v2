@@ -74,7 +74,7 @@
 }
 
 .markdown-body .inline-code {
-  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-family: var(--font-mono);
   font-size: 0.88em;
   padding: 0.2rem 0.45rem;
   border-radius: 6px;
@@ -244,7 +244,7 @@
 }
 
 .code-lang-tag {
-  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -286,7 +286,7 @@
   margin: 0;
   padding: 1.2rem 1.2rem;
   overflow-x: auto;
-  font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace;
+  font-family: var(--font-mono);
   font-size: 0.9rem;
   line-height: 1.65;
   color: #d6deeb;
@@ -354,7 +354,7 @@
 }
 
 .diagram-node {
-  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   color: #d6deeb;
   background: rgba(99, 102, 241, 0.1);

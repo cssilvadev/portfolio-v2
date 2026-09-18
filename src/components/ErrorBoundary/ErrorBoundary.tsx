@@ -29,9 +29,8 @@ export default class ErrorBoundary extends Component<Props, State> {
             <h1>Something broke while rendering the page</h1>
             <p>{this.state.error.message}</p>
             <p className="app-crash-hint">
-              If you are running this locally, make sure you have a <code>.env</code> file
-              with <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> set
-              (see <code>.env.example</code>), then restart the dev server.
+              If you are running this locally, check the terminal error and restart the dev server
+              after fixing the reported issue.
             </p>
           </div>
         </div>

@@ -168,7 +168,7 @@ export default function Studio() {
     title: "${title.replace(/"/g, '\\"')}",
     excerpt: "${excerpt.replace(/"/g, '\\"')}",
     date: "${dateStr}",
-    readingTime: "${readingTime}",
+    readingTime: ${readingTime},
     category: "${category}",
     tags: ${JSON.stringify(tags)},
     coverImage: "${coverImage}",
@@ -188,7 +188,7 @@ slug: "${slug}"
 category: "${category}"
 tags: [${tags.map((t) => `"${t}"`).join(", ")}]
 date: "${dateStr}"
-readingTime: "${readingTime}"
+readingTime: ${readingTime}
 excerpt: "${excerpt}"
 ---
 
@@ -206,7 +206,7 @@ slug: "${slug}"
 category: "${category}"
 tags: [${tags.map((t) => `"${t}"`).join(", ")}]
 date: "${dateStr}"
-readingTime: "${readingTime}"
+readingTime: ${readingTime}
 excerpt: "${excerpt}"
 ---
 
@@ -458,14 +458,14 @@ ${content}`;
               <section className="studio-preview-panel">
                 <div className="preview-header-bar">
                   <span className="preview-label">Live Reader Preview</span>
-                  <span className="reading-time-pill">{readingTime}</span>
+                  <span className="reading-time-pill">{readingTime} min read</span>
                 </div>
 
                 <div className="preview-scroll-container">
                   <div className="note-article-header">
                     <div className="note-meta-badges">
                       <span className="badge category-badge">{category}</span>
-                      <span className="badge time-badge">{readingTime}</span>
+                      <span className="badge time-badge">{readingTime} min read</span>
                       <span className="badge date-badge">{dateStr}</span>
                     </div>
 

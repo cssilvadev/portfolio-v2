@@ -1,8 +1,10 @@
 import { Link, useParams } from "react-router-dom";
+import { useEffect } from "react";
 import Cursor from "../../components/Cursor/Cursor";
 import NavBar from "../../components/NavBar/NavBar";
 import { getProjectBySlug } from "../../data/projects";
 import { useLanguage } from "../../context/LanguageContext";
+import { useContent } from "../../context/ContentContext";
 import { getAssetUrl } from "../../utils/assets";
 
 import "./ProjectPage.css";
@@ -10,8 +12,17 @@ import "./ProjectPage.css";
 export default function ProjectPage() {
   const { slug } = useParams();
   const { t, language } = useLanguage();
+  const { projects } = useContent();
 
-  const project = slug ? getProjectBySlug(slug, language) : undefined;
+  const project = slug ? getProjectBySlug(slug, language, projects) : undefined;
+
+  useEffect(() => {
+    document.title = project ? `${project.title} — Christian Silva` : `${t.projects.notFound} — Christian Silva`;
+    document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute(
+      "content",
+      project?.description ?? t.projects.notFoundDesc,
+    );
+  }, [project, t]);
 
   return (
     <>

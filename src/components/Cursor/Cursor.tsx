@@ -8,6 +8,11 @@ export default function Cursor() {
   const pos = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
+    const canUseCustomCursor =
+      window.matchMedia('(pointer: fine)').matches &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!canUseCustomCursor) return
+
     const onMouseMove = (e: MouseEvent) => {
       mouse.current.x = e.clientX
       mouse.current.y = e.clientY
@@ -15,6 +20,7 @@ export default function Cursor() {
 
     window.addEventListener('mousemove', onMouseMove)
 
+    let animationFrame = 0
     const animate = () => {
       const speed = 0.05 // 👈 controla o arrasto
 
@@ -26,13 +32,14 @@ export default function Cursor() {
         cursorRef.current.style.top = `${pos.current.y}px`
       }
 
-      requestAnimationFrame(animate)
+      animationFrame = requestAnimationFrame(animate)
     }
 
     animate()
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove)
+      cancelAnimationFrame(animationFrame)
     }
   }, [])
 

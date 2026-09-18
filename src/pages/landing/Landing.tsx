@@ -14,17 +14,20 @@ export default function Landing() {
   const { hash } = useLocation();
 
   useEffect(() => {
+    document.title = "Christian Silva — Full Stack & Firmware Engineer";
     if (!hash) return;
     const el = document.querySelector(hash);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (el) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
   }, [hash]);
 
   return (
     <>
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <Cursor />
       <NavBar />
 
-      <main>
+      <main id="main-content">
         <Home />
         <Projects />
         <Notes />

@@ -4,18 +4,38 @@ import { FaClock, FaCalendarAlt, FaTag, FaArrowLeft, FaShareAlt, FaCheck, FaChev
 import Cursor from "../../components/Cursor/Cursor";
 import NavBar from "../../components/NavBar/NavBar";
 import MarkdownRenderer from "../../components/MarkdownRenderer/MarkdownRenderer";
-import { notes, getNoteBySlug } from "../../data/notes";
+import { getNoteBySlug, loadNoteBySlug, formatNoteDate, type LocalizedNote } from "../../data/notes";
 import { useLanguage } from "../../context/LanguageContext";
+import { useContent } from "../../context/ContentContext";
 import { getAssetUrl } from "../../utils/assets";
 import "./NotePage.css";
 
 export default function NotePage() {
   const { slug } = useParams();
   const { t, language } = useLanguage();
+  const { notes } = useContent();
   const [copiedLink, setCopiedLink] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [note, setNote] = useState<LocalizedNote>();
+  const noteKey = `${slug ?? ""}:${language}`;
+  const [loadedNoteKey, setLoadedNoteKey] = useState("");
+  const isLoading = loadedNoteKey !== noteKey;
 
-  const note = slug ? getNoteBySlug(slug, language) : undefined;
+  useEffect(() => {
+    let active = true;
+    void loadNoteBySlug(slug ?? "", language, notes).then((loadedNote) => {
+      if (!active) return;
+      setNote(loadedNote);
+      setLoadedNoteKey(noteKey);
+    });
+    return () => { active = false; };
+  }, [language, noteKey, notes, slug]);
+
+  useEffect(() => {
+    document.title = note ? `${note.title} — Christian Silva` : `${t.notes.notFound} — Christian Silva`;
+    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    description?.setAttribute("content", note?.excerpt ?? t.notes.notFoundDesc);
+  }, [note, t]);
 
   // Track reading progress
   useEffect(() => {
@@ -47,8 +67,8 @@ export default function NotePage() {
   const rawPrevNote = currentIndex > 0 ? notes[currentIndex - 1] : null;
   const rawNextNote = currentIndex !== -1 && currentIndex < notes.length - 1 ? notes[currentIndex + 1] : null;
 
-  const prevNote = rawPrevNote ? getNoteBySlug(rawPrevNote.slug, language) : null;
-  const nextNote = rawNextNote ? getNoteBySlug(rawNextNote.slug, language) : null;
+  const prevNote = rawPrevNote ? getNoteBySlug(rawPrevNote.slug, language, notes) : null;
+  const nextNote = rawNextNote ? getNoteBySlug(rawNextNote.slug, language, notes) : null;
 
   const getCategoryLabel = (cat: string): string => {
     switch (cat) {
@@ -101,7 +121,9 @@ export default function NotePage() {
             )}
           </div>
 
-          {!note ? (
+          {isLoading ? (
+            <div className="note-notfound" aria-live="polite">Loading…</div>
+          ) : !note ? (
             <div className="note-notfound">
               <h1>{t.notes.notFound}</h1>
               <p>{t.notes.notFoundDesc}</p>
@@ -120,11 +142,11 @@ export default function NotePage() {
                   </span>
                   <span className="badge time-badge">
                     <FaClock className="badge-icon" />
-                    {note.readingTime.replace("min read", t.notes.readTime)}
+                    {note.readingTime} {t.notes.readTime}
                   </span>
                   <span className="badge date-badge">
                     <FaCalendarAlt className="badge-icon" />
-                    {note.date}
+                    {formatNoteDate(note.date, language)}
                   </span>
                 </div>
 
