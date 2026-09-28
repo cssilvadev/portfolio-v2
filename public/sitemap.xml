@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://cssilvadev.github.io/portfolio-v2/</loc></url>
+  <url><loc>https://cssilvadev.github.io/portfolio-v2/projects</loc></url>
+  <url><loc>https://cssilvadev.github.io/portfolio-v2/notes</loc></url>
   <url><loc>https://cssilvadev.github.io/portfolio-v2/projects/arm-robot</loc></url>
   <url><loc>https://cssilvadev.github.io/portfolio-v2/projects/g27-pedal-adapter</loc></url>
   <url><loc>https://cssilvadev.github.io/portfolio-v2/projects/humanoid-robot</loc></url>

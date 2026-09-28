@@ -7,14 +7,34 @@ export interface Translations {
     notes: string;
     about: string;
     contact: string;
+    skipContent: string;
+    openMenu: string;
+    closeMenu: string;
+    changeLanguage: string;
+    lightTheme: string;
+    darkTheme: string;
   };
   home: {
     eyebrow: string;
     name: string;
     subtitle: string;
+    scrollSectionLabel: string;
+    scrollHint: string;
+    scrollMiddleLabel: string;
+    scrollMiddleTitle: string;
+    scrollMiddleBody: string;
+    scrollEndLabel: string;
+    scrollEndTitle: string;
+    scrollEndBody: string;
   };
   projects: {
     title: string;
+    featured: string;
+    allProjects: string;
+    nextProject: string;
+    indexIntro: string;
+    searchPlaceholder: string;
+    noResults: string;
     viewBtn: string;
     backBtn: string;
     notFound: string;
@@ -40,6 +60,16 @@ export interface Translations {
     backNotes: string;
     share: string;
     copied: string;
+    copyError: string;
+    loading: string;
+    emptyCategory: string;
+    copyCode: string;
+    copyCodeError: string;
+    copiedCode: string;
+    calloutNote: string;
+    calloutTip: string;
+    calloutWarning: string;
+    calloutImportant: string;
     prevNote: string;
     nextNote: string;
     notFound: string;
@@ -134,14 +164,34 @@ export const translations: Record<Language, Translations> = {
       notes: "Notes",
       about: "About",
       contact: "Contact",
+      skipContent: "Skip to content",
+      openMenu: "Open navigation menu",
+      closeMenu: "Close navigation menu",
+      changeLanguage: "Change language",
+      lightTheme: "Switch to light theme",
+      darkTheme: "Switch to dark theme",
     },
     home: {
       eyebrow: "Full Stack Developer & Firmware Engineer",
       name: "Christian Silva",
       subtitle: "Building software, firmware and interactive systems.",
+      scrollSectionLabel: "Introduction to Christian Silva",
+      scrollHint: "Scroll to explore",
+      scrollMiddleLabel: "Software × Hardware",
+      scrollMiddleTitle: "Beyond the screen.",
+      scrollMiddleBody: "I build across the boundary between digital products and physical systems.",
+      scrollEndLabel: "Selected work",
+      scrollEndTitle: "Ideas made tangible.",
+      scrollEndBody: "Explore projects in firmware, robotics, apps and the web.",
     },
     projects: {
       title: "PROJECTS",
+      featured: "Selected work",
+      allProjects: "Explore all projects",
+      nextProject: "Next project",
+      indexIntro: "A growing collection of software, firmware and systems built to solve real problems.",
+      searchPlaceholder: "Search projects or technologies",
+      noResults: "No projects match this search.",
       viewBtn: "View",
       backBtn: "← Back to Projects",
       notFound: "Project not found",
@@ -162,6 +212,7 @@ export const translations: Record<Language, Translations> = {
         telemetry: "Telemetry",
         frontend: "Frontend",
         render3d: "3D Rendering",
+        motion: "Motion",
         backend: "Backend",
         i18n: "Localization",
         input: "Input",
@@ -189,6 +240,16 @@ export const translations: Record<Language, Translations> = {
       backNotes: "Back to Notes & Logs",
       share: "Share Note",
       copied: "Link Copied!",
+      copyError: "Unable to copy. You can copy the address from your browser.",
+      loading: "Loading…",
+      emptyCategory: "No notes in this category yet.",
+      copyCode: "Copy code",
+      copyCodeError: "Unable to copy automatically. Select the code and copy it manually.",
+      copiedCode: "Copied!",
+      calloutNote: "Note",
+      calloutTip: "Pro Tip",
+      calloutWarning: "Warning",
+      calloutImportant: "Important",
       prevNote: "Previous Note",
       nextNote: "Next Note",
       notFound: "Note not found",
@@ -254,14 +315,34 @@ export const translations: Record<Language, Translations> = {
       notes: "Notas",
       about: "Sobre",
       contact: "Contato",
+      skipContent: "Pular para o conteúdo",
+      openMenu: "Abrir menu de navegação",
+      closeMenu: "Fechar menu de navegação",
+      changeLanguage: "Alterar idioma",
+      lightTheme: "Ativar tema claro",
+      darkTheme: "Ativar tema escuro",
     },
     home: {
       eyebrow: "Desenvolvedor Full Stack & Engenheiro de Firmware",
       name: "Christian Silva",
       subtitle: "Construindo software, firmware e sistemas interativos.",
+      scrollSectionLabel: "Apresentação de Christian Silva",
+      scrollHint: "Role para explorar",
+      scrollMiddleLabel: "Software × Hardware",
+      scrollMiddleTitle: "Além da tela.",
+      scrollMiddleBody: "Desenvolvo na fronteira entre produtos digitais e sistemas físicos.",
+      scrollEndLabel: "Projetos selecionados",
+      scrollEndTitle: "Ideias em prática.",
+      scrollEndBody: "Explore projetos de firmware, robótica, aplicativos e web.",
     },
     projects: {
       title: "PROJETOS",
+      featured: "Trabalhos selecionados",
+      allProjects: "Explorar todos os projetos",
+      nextProject: "Próximo projeto",
+      indexIntro: "Uma coleção em crescimento de software, firmware e sistemas criados para resolver problemas reais.",
+      searchPlaceholder: "Buscar projetos ou tecnologias",
+      noResults: "Nenhum projeto encontrado para esta busca.",
       viewBtn: "Ver",
       backBtn: "← Voltar aos Projetos",
       notFound: "Projeto não encontrado",
@@ -282,6 +363,7 @@ export const translations: Record<Language, Translations> = {
         telemetry: "Telemetria",
         frontend: "Frontend",
         render3d: "Renderização 3D",
+        motion: "Movimento",
         backend: "Backend",
         i18n: "Internacionalização",
         input: "Entrada",
@@ -309,6 +391,16 @@ export const translations: Record<Language, Translations> = {
       backNotes: "Voltar para Notas & Logs",
       share: "Compartilhar",
       copied: "Link Copiado!",
+      copyError: "Não foi possível copiar. Você pode copiar o endereço do navegador.",
+      loading: "Carregando…",
+      emptyCategory: "Ainda não há notas nesta categoria.",
+      copyCode: "Copiar código",
+      copyCodeError: "Não foi possível copiar automaticamente. Selecione o código e copie manualmente.",
+      copiedCode: "Copiado!",
+      calloutNote: "Nota",
+      calloutTip: "Dica",
+      calloutWarning: "Atenção",
+      calloutImportant: "Importante",
       prevNote: "Nota Anterior",
       nextNote: "Próxima Nota",
       notFound: "Nota não encontrada",
@@ -374,14 +466,34 @@ export const translations: Record<Language, Translations> = {
       notes: "Notas",
       about: "Sobre mí",
       contact: "Contacto",
+      skipContent: "Saltar al contenido",
+      openMenu: "Abrir menú de navegación",
+      closeMenu: "Cerrar menú de navegación",
+      changeLanguage: "Cambiar idioma",
+      lightTheme: "Activar tema claro",
+      darkTheme: "Activar tema oscuro",
     },
     home: {
       eyebrow: "Desarrollador Full Stack e Ingeniero de Firmware",
       name: "Christian Silva",
       subtitle: "Construyendo software, firmware y sistemas interactivos.",
+      scrollSectionLabel: "Presentación de Christian Silva",
+      scrollHint: "Desplázate para explorar",
+      scrollMiddleLabel: "Software × Hardware",
+      scrollMiddleTitle: "Más allá de la pantalla.",
+      scrollMiddleBody: "Desarrollo en la frontera entre productos digitales y sistemas físicos.",
+      scrollEndLabel: "Proyectos seleccionados",
+      scrollEndTitle: "Ideas en acción.",
+      scrollEndBody: "Explora proyectos de firmware, robótica, aplicaciones y web.",
     },
     projects: {
       title: "PROYECTOS",
+      featured: "Trabajos seleccionados",
+      allProjects: "Explorar todos los proyectos",
+      nextProject: "Siguiente proyecto",
+      indexIntro: "Una colección en crecimiento de software, firmware y sistemas creados para resolver problemas reales.",
+      searchPlaceholder: "Buscar proyectos o tecnologías",
+      noResults: "No se encontraron proyectos para esta búsqueda.",
       viewBtn: "Ver",
       backBtn: "← Volver a Proyectos",
       notFound: "Proyecto no encontrado",
@@ -402,6 +514,7 @@ export const translations: Record<Language, Translations> = {
         telemetry: "Telemetría",
         frontend: "Frontend",
         render3d: "Renderizado 3D",
+        motion: "Movimiento",
         backend: "Backend",
         i18n: "Internacionalización",
         input: "Entrada",
@@ -429,6 +542,16 @@ export const translations: Record<Language, Translations> = {
       backNotes: "Volver a Notas y Registros",
       share: "Compartir",
       copied: "¡Enlace Copiado!",
+      copyError: "No se pudo copiar. Puedes copiar la dirección del navegador.",
+      loading: "Cargando…",
+      emptyCategory: "Todavía no hay notas en esta categoría.",
+      copyCode: "Copiar código",
+      copyCodeError: "No se pudo copiar automáticamente. Selecciona el código y cópialo manualmente.",
+      copiedCode: "¡Copiado!",
+      calloutNote: "Nota",
+      calloutTip: "Consejo",
+      calloutWarning: "Advertencia",
+      calloutImportant: "Importante",
       prevNote: "Nota Anterior",
       nextNote: "Siguiente Nota",
       notFound: "Nota no encontrada",

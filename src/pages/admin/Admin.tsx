@@ -282,7 +282,7 @@ export default function Admin() {
     <>
       <Cursor />
       <NavBar />
-      <main className="admin-page">
+      <main id="main-content" tabIndex={-1} className="admin-page">
         <div className="admin-container">
           <header className="admin-header">
             <div><Link to="/" className="admin-back"><FaArrowLeft /> Voltar</Link><h1>CMS do portfólio</h1><p>Gerencie artigos, projetos e páginas sem editar código.</p></div>

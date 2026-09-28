@@ -3,3 +3,5 @@
   background: var(--bg);
   color: var(--text);
 }
+
+.route-loading { min-height: 100svh; background: var(--bg); }

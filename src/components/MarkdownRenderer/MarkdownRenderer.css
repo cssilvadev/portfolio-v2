@@ -391,3 +391,4 @@
   color: var(--text-muted);
   margin-top: 0.5rem;
 }
+.code-copy-error { padding: 0.8rem 1rem; color: var(--text-muted); font-size: 0.85rem; }

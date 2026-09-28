@@ -6,10 +6,12 @@
   position: fixed;
   top: 0;
   left: 0;
+  width: 100%;
   height: 3px;
   background: var(--accent);
   z-index: 9999;
-  transition: width 0.1s ease-out;
+  transform: scaleX(0);
+  transform-origin: left;
   box-shadow: 0 0 10px var(--accent);
 }
 
@@ -29,6 +31,7 @@
    ========================================= */
 
 .note-page-nav {
+  gap: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -36,6 +39,9 @@
 }
 
 .note-back-link {
+  min-height: 44px;
+  text-decoration: none;
+  line-height: 1.4;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -81,6 +87,9 @@
 .share-icon {
   font-size: 0.8rem;
 }
+
+.note-share-btn:disabled { cursor: wait; }
+.note-share-error { margin: -1rem 0 2rem; color: var(--text-muted); font-size: 0.85rem; }
 
 /* =========================================
    ARTICLE HEADER
@@ -278,4 +287,44 @@
     text-align: left;
     align-items: flex-start;
   }
+}
+
+/* Editorial reading layout — same full-screen rhythm as the landing page. */
+.note-page { padding: 120px 0 10vh; background: var(--bg); }
+.note-page-inner { width: min(100%, 1500px); max-width: none; padding: 0 clamp(24px, 8vw, 150px); }
+.note-page-nav { margin-bottom: 0; }
+.note-back-link, .note-share-btn { font-family: var(--font-mono); font-size: 0.76rem; }
+.note-article-header {
+  min-height: calc(100svh - 170px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0;
+  padding: 5rem 0;
+  border-bottom: 0;
+}
+.note-meta-badges { margin-bottom: 2rem; }
+.note-article-title {
+  max-width: 1150px;
+  margin-bottom: 2rem;
+  font-size: clamp(3.3rem, 7vw, 8rem);
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.075em;
+  overflow-wrap: anywhere;
+}
+.note-article-excerpt { max-width: 680px; font-size: clamp(1.1rem, 1.6vw, 1.45rem); }
+.note-article-tags { margin-top: 1rem; }
+.note-hero-wrapper { margin: 0 0 clamp(4rem, 10vh, 8rem); }
+.note-hero-img { width: 100%; max-height: min(75svh, 800px); border: 0; border-radius: clamp(18px, 3vw, 36px); }
+.note-article-body { width: min(100%, 820px); margin: 0 auto 8rem; }
+.note-footer-nav { width: min(100%, 1000px); margin-inline: auto; }
+.nav-card { border-radius: 22px; padding: clamp(1.5rem, 3vw, 3rem); }
+.nav-card-title { font-size: clamp(1.1rem, 1.8vw, 1.6rem); letter-spacing: -0.03em; }
+.note-notfound { min-height: 70svh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.note-notfound h1 { font-size: clamp(3rem, 7vw, 7rem); line-height: 1; letter-spacing: -0.07em; }
+@media (max-width: 700px) {
+  .note-page-inner { padding-inline: 7vw; }
+  .note-article-header { min-height: 75svh; padding: 4rem 0; }
+  .note-article-title { font-size: clamp(2.8rem, 11vw, 5rem); }
 }

@@ -32,7 +32,10 @@
 }
 
 .not-found-back {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
   padding: 0.7rem 1.4rem;
   border-radius: 999px;
   background: var(--accent);
@@ -44,3 +47,10 @@
 .not-found-back:hover {
   opacity: 0.85;
 }
+
+.not-found-page { min-height: 100svh; padding: 140px 7vw 8vh; background: var(--bg); }
+.not-found-inner { max-width: 1000px; }
+.not-found-code { font-size: clamp(4rem, 12vw, 12rem); line-height: 0.9; letter-spacing: -0.1em; }
+.not-found-inner h1 { font-size: clamp(3rem, 7vw, 7rem); line-height: 1; letter-spacing: -0.075em; }
+.not-found-inner p { font-size: clamp(1rem, 1.5vw, 1.4rem); }
+.not-found-back { background: var(--text); color: var(--bg); }

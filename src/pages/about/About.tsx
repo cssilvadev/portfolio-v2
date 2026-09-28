@@ -1,6 +1,8 @@
 import { useLanguage } from "../../context/LanguageContext";
 import { getAssetUrl } from "../../utils/assets";
 import "./About.css";
+import { useRef } from "react";
+import { useScrollEntrance } from "../../hooks/useScrollEntrance";
 
 const cvAssets = import.meta.glob("/public/cv.pdf", {
   eager: true,
@@ -11,31 +13,26 @@ const cvUrl = cvAssets["/public/cv.pdf"];
 
 export default function About() {
   const { t } = useLanguage();
+  const sectionRef = useRef<HTMLElement>(null);
+  useScrollEntrance(sectionRef);
 
   return (
-    <section id="about" className="section">
-
-      {/* SECTION TITLE */}
-      <div className="section-title">
-        <h2>{t.about.title}</h2>
-        <div className="section-title-line"></div>
-      </div>
-
-      {/* CONTENT */}
+    <section id="about" ref={sectionRef} className="section about-story">
       <div className="section-inner about">
 
         <div className="about-grid">
 
-          {/* PHOTO */}
-          <div className="about-photo">
-            <img src={getAssetUrl("/images/me.jpg")} alt="Christian Silva" />
+          <div className="about-portrait" data-scroll-enter>
+            <div className="about-photo">
+              <img src={getAssetUrl("/images/me.jpg")} alt="Christian Silva" loading="lazy" decoding="async" />
+            </div>
           </div>
 
-          {/* TEXT */}
-          <div className="about-content">
-            <h3>
+          <div className="about-content" data-scroll-enter>
+            <p className="story-eyebrow">03 / {t.about.title}</p>
+            <h2>
               Christian <span>Silva</span>
-            </h3>
+            </h2>
 
             <div className="about-tags">
               <span>{t.about.tags.brazil}</span>
@@ -48,9 +45,8 @@ export default function About() {
               {t.about.bio}
             </p>
 
-            {/* EDUCATION */}
             <div className="about-education">
-              <h4>{t.about.education}</h4>
+              <h3>{t.about.education}</h3>
 
               <ul className="education-list">
                 <li>

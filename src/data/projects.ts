@@ -118,30 +118,30 @@ export const projects: Project[] = [
     slug: "interactive-portfolio",
     date: "2025",
     image: "/projects/portfolio.svg",
-    stack: ["React", "TypeScript", "Three.js", "CSS"],
+    stack: ["React", "TypeScript", "CSS", "Spline"],
     specs: [
       { key: "frontend", value: "React 19 + TypeScript" },
-      { key: "render3d", value: "Spline / Three.js WebGL" },
+      { key: "motion", value: "Scroll-driven robot assembly" },
       { key: "backend", value: "Supabase (Auth + Postgres)" },
       { key: "i18n", value: "EN / PT-BR / ES" },
     ],
     en: {
       title: "Interactive Portfolio",
-      description: "Personal portfolio with interactive 3D visuals and technical notes hub.",
+      description: "Personal portfolio told through scroll-led chapters, interactive projects, and technical notes.",
       overview:
-        "Modern developer portfolio built with React 19, TypeScript, and Three.js / Spline 3D interactivity. Includes an engineering notes reader, markdown rendering engine, multi-language internationalization, and an in-app creation studio.",
+        "Developer portfolio built with React 19 and TypeScript. Its scroll-led chapters assemble the original robot from lightweight image layers, then present projects, technical notes, about, and contact as full-viewport scenes. The site also includes markdown rendering, multi-language support, and an in-app creation studio.",
     },
     pt: {
       title: "Portfólio Interativo",
-      description: "Portfólio pessoal com 3D interativo e hub de notas técnicas.",
+      description: "Portfólio pessoal contado em cenas guiadas pela rolagem, projetos e notas técnicas.",
       overview:
-        "Portfólio moderno desenvolvido com React 19, TypeScript e elementos 3D em Three.js / Spline. Inclui leitor de notas de engenharia, motor de renderização markdown, internacionalização multilíngue e estúdio de criação integrado.",
+        "Portfólio desenvolvido com React 19 e TypeScript. As cenas guiadas pela rolagem montam o robô original com camadas leves de imagem e apresentam projetos, notas técnicas, sobre e contato em telas amplas. O site inclui renderização markdown, suporte a três idiomas e estúdio de criação integrado.",
     },
     es: {
       title: "Portafolio Interactivo",
-      description: "Portafolio personal con 3D interactivo y centro de notas técnicas.",
+      description: "Portafolio personal contado en escenas guiadas por el desplazamiento, proyectos y notas técnicas.",
       overview:
-        "Portafolio moderno desarrollado con React 19, TypeScript e interactividad 3D con Three.js / Spline. Incluye lector de notas técnicas, motor markdown, internacionalización multilingüe y estudio de creación integrado.",
+        "Portafolio desarrollado con React 19 y TypeScript. Las escenas guiadas por el desplazamiento ensamblan el robot original con capas ligeras de imagen y presentan proyectos, notas técnicas, información personal y contacto a pantalla completa. Incluye renderizado markdown, soporte para tres idiomas y estudio de creación integrado.",
     },
   },
   {

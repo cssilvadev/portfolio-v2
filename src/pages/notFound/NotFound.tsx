@@ -8,6 +8,8 @@ import "./NotFound.css";
 export default function NotFound() {
   const { t } = useLanguage();
 
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, []);
+
   useEffect(() => {
     document.title = `404 — ${t.notFoundPage.title}`;
     document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute("content", t.notFoundPage.desc);
@@ -18,7 +20,7 @@ export default function NotFound() {
       <Cursor />
       <NavBar />
 
-      <main className="not-found-page">
+      <main id="main-content" tabIndex={-1} className="not-found-page">
         <div className="not-found-inner">
           <span className="not-found-code">404</span>
           <h1>{t.notFoundPage.title}</h1>

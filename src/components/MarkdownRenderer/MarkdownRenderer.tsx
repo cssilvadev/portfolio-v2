@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaCopy, FaCheck, FaInfoCircle, FaLightbulb, FaExclamationTriangle, FaFire } from "react-icons/fa";
 import { getAssetUrl } from "../../utils/assets";
 import "./MarkdownRenderer.css";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface MarkdownRendererProps {
   content: string;
@@ -69,12 +70,29 @@ function highlightCode(code: string, lang: string): React.ReactNode[] {
 }
 
 function CodeBlock({ code, lang }: { code: string; lang: string }) {
-  const [copied, setCopied] = useState(false);
+  const { t } = useLanguage();
+  const [result, setResult] = useState<{ code: string; status: "idle" | "copying" | "copied" | "error" }>({ code: "", status: "idle" });
+  const status = result.code === code ? result.status : "idle";
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const requestId = useRef(0);
+  useEffect(() => () => {
+    requestId.current += 1;
+    clearTimeout(timer.current);
+  }, [code]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    if (status === "copying") return;
+    const request = ++requestId.current;
+    clearTimeout(timer.current);
+    setResult({ code, status: "copying" });
+    try {
+      await navigator.clipboard.writeText(code);
+      if (request !== requestId.current) return;
+      setResult({ code, status: "copied" });
+      timer.current = setTimeout(() => setResult({ code, status: "idle" }), 2500);
+    } catch {
+      if (request === requestId.current) setResult({ code, status: "error" });
+    }
   };
 
   return (
@@ -82,23 +100,28 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
       <div className="code-block-header">
         <span className="code-lang-tag">{lang || "code"}</span>
         <button
-          onClick={handleCopy}
-          className={`copy-code-btn ${copied ? "copied" : ""}`}
-          title="Copy code"
+          type="button"
+          onClick={() => void handleCopy()}
+          disabled={status === "copying"}
+          className={`copy-code-btn ${status === "copied" ? "copied" : ""}`}
+          title={t.notes.copyCode}
         >
-          {copied ? (
+          {status === "copied" ? (
             <>
-              <FaCheck className="copy-icon" />
-              <span>Copied!</span>
+              <FaCheck className="copy-icon" aria-hidden="true" />
+              <span>{t.notes.copiedCode}</span>
             </>
           ) : (
             <>
-              <FaCopy className="copy-icon" />
-              <span>Copy</span>
+              <FaCopy className="copy-icon" aria-hidden="true" />
+              <span>{t.notes.copyCode}</span>
             </>
           )}
         </button>
       </div>
+      <p className={status === "error" ? "code-copy-error" : "sr-only"} role="status">
+        {status === "error" ? t.notes.copyCodeError : status === "copied" ? t.notes.copiedCode : ""}
+      </p>
       <pre className="code-block-pre">
         <code>{highlightCode(code, lang)}</code>
       </pre>
@@ -205,6 +228,7 @@ function renderInline(text: string): React.ReactNode {
 }
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
+  const { t } = useLanguage();
   const lines = content.split("\n");
   const elements: React.ReactNode[] = [];
   let i = 0;
@@ -251,16 +275,16 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       }
 
       let icon = <FaInfoCircle className="callout-icon" />;
-      let title = "Note";
+      let title = t.notes.calloutNote;
       if (calloutType === "TIP") {
         icon = <FaLightbulb className="callout-icon" />;
-        title = "Pro Tip";
+        title = t.notes.calloutTip;
       } else if (calloutType === "WARNING" || calloutType === "CAUTION") {
         icon = <FaExclamationTriangle className="callout-icon" />;
-        title = "Warning";
+        title = t.notes.calloutWarning;
       } else if (calloutType === "IMPORTANT") {
         icon = <FaFire className="callout-icon" />;
-        title = "Important";
+        title = t.notes.calloutImportant;
       }
 
       elements.push(
@@ -370,7 +394,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     if (imgMatch) {
       elements.push(
         <div key={elementKey++} className="md-image-wrapper">
-          <img src={getAssetUrl(imgMatch[2])} alt={imgMatch[1]} className="md-image" />
+          <img src={getAssetUrl(imgMatch[2])} alt={imgMatch[1]} className="md-image" loading="lazy" decoding="async" />
           {imgMatch[1] && <span className="md-image-caption">{imgMatch[1]}</span>}
         </div>
       );

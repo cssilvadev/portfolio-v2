@@ -57,9 +57,9 @@ For maximum session isolation, the next deployment evolution would be an SSR/BFF
 
 `public/404.html` keeps direct navigation working in the browser by redirecting deep links back to the SPA. GitHub Pages still serves that fallback with HTTP status 404, so search engines may treat `/notes/*` and `/projects/*` URLs as missing. The real fix is SSG or a host/domain that supports SPA rewrites; this repository intentionally does not solve that limitation.
 
-## Spline watermark
+## Scroll-driven landing page
 
-The Spline watermark is left untouched. The available options are a paid Spline plan that removes the badge, or replacing the scene with a looped video / telemetry panel after choosing the desired visual direction.
+The landing page is organized as full-viewport chapters: the robot assembly, three featured project showcases, an editorial notes section, about, and contact. The hero uses `public/images/robot-transparent.png`, a transparent cutout based on `robot-original.png` from the original Spline robot. Scroll progress assembles its head, torso, arms, pelvis and legs as independent clipped layers; no character is visible at the top. There is no black media panel or activation reticle, so the robot sits directly on the current light or dark theme. No WebGL scene or continuous animation loop runs on the landing page. Reduced-motion visitors see the complete robot and regular-flow text. The previous Spline component remains in the repository for reference but is no longer imported by the landing page. The `/projects` route holds the complete, searchable project collection; the Home only features the three most recent by year.
 
 ## Verification
 

@@ -1,18 +1,21 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLanguage } from "../../context/LanguageContext";
-import { getAssetUrl } from "../../utils/assets";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 import "./Contact.css";
+import { useScrollEntrance } from "../../hooks/useScrollEntrance";
 
 type FormState = "idle" | "sending" | "success" | "error";
 
 export default function Contact() {
   const { t } = useLanguage();
+  const sectionRef = useRef<HTMLElement>(null);
+  useScrollEntrance(sectionRef);
   const [formState, setFormState] = useState<FormState>("idle");
   const endpoint = import.meta.env.VITE_CONTACT_FORM_ENDPOINT?.trim();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (formState === "sending") return;
     if (!endpoint) {
       setFormState("error");
       return;
@@ -28,6 +31,7 @@ export default function Contact() {
         method: "POST",
         body: formData,
         headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(15000),
       });
 
       if (!response.ok) throw new Error("Contact form request failed");
@@ -39,38 +43,31 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="section">
-      <div className="contact-header">
-        <h2>{t.contact.title}</h2>
-        <div className="contact-header-line" />
-      </div>
-
-      <div className="section-inner contact">
-        <div className="contact-left">
-          <div className="contact-top">
-            <img src={getAssetUrl("/images/me.jpg")} alt="Christian Silva" className="contact-photo" />
-            <h3 className="contact-name">Christian Silva</h3>
-          </div>
-
-          <div className="contact-bottom">
-            <p className="muted">{t.contact.role}</p>
-            <div className="contact-socials">
-              <a href="https://github.com/cssilvadev" target="_blank" rel="noopener noreferrer" className="social-link github">
-                <FaGithub className="social-icon" /> <span>GitHub</span>
-              </a>
-              <a href="https://www.linkedin.com/in/christian-silva-a70418236/" target="_blank" rel="noopener noreferrer" className="social-link linkedin">
-                <FaLinkedin className="social-icon" /> <span>LinkedIn</span>
-              </a>
-              <a href="mailto:christiansilva.dev@outlook.com" className="social-link email">
-                <FaEnvelope className="social-icon" /> <span>Email</span>
-              </a>
-            </div>
+    <section id="contact" ref={sectionRef} className="section contact-story">
+      <div className="contact-stage">
+        <div className="contact-left" data-scroll-enter>
+          <p className="story-eyebrow">04 / {t.contact.title}</p>
+          <h2>{t.contact.title}</h2>
+          <p className="contact-name">Christian Silva</p>
+          <p className="contact-role">{t.contact.role}</p>
+          <div className="contact-socials">
+            <a href="https://github.com/cssilvadev" target="_blank" rel="noopener noreferrer" className="social-link github">
+              <FaGithub className="social-icon" /> <span>GitHub</span>
+            </a>
+            <a href="https://www.linkedin.com/in/christian-silva-a70418236/" target="_blank" rel="noopener noreferrer" className="social-link linkedin">
+              <FaLinkedin className="social-icon" /> <span>LinkedIn</span>
+            </a>
+            <a href="mailto:christiansilva.dev@outlook.com" className="social-link email">
+              <FaEnvelope className="social-icon" /> <span>Email</span>
+            </a>
           </div>
         </div>
 
+        <div className="contact-form-reveal" data-scroll-enter>
         <div className="contact-right">
           <h3 className="contact-form-title">{t.contact.formTitle}</h3>
-          <form className="contact-form" onSubmit={handleSubmit}>
+          <form className="contact-form" onSubmit={handleSubmit} aria-busy={formState === "sending"}
+            onChange={() => { if (formState !== "sending") setFormState("idle"); }}>
             <div className="contact-field">
               <label htmlFor="contact-first-name">{t.contact.firstName}</label>
               <input id="contact-first-name" name="firstName" autoComplete="given-name" placeholder={t.contact.firstName} required />
@@ -93,10 +90,11 @@ export default function Contact() {
             </div>
             <button type="submit" disabled={formState === "sending"}>
               {formState === "sending" ? t.contact.sending : t.contact.sendBtn}
+              {formState !== "sending" && <span aria-hidden="true">↗</span>}
             </button>
           </form>
 
-          <div className={`contact-status ${formState}`} role={formState === "error" ? "alert" : "status"} aria-live="polite">
+          <div className={`contact-status ${formState}`} role={formState === "error" ? "alert" : "status"}>
             {formState === "success" && t.contact.sentSuccess}
             {formState === "error" && (
               <>
@@ -105,6 +103,7 @@ export default function Contact() {
               </>
             )}
           </div>
+        </div>
         </div>
       </div>
     </section>

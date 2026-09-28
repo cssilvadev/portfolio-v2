@@ -3,6 +3,7 @@ import { FaEnvelope, FaLock, FaTimes, FaUser } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useLanguage } from "../../context/LanguageContext";
 import "./AuthModal.css";
+import { useDialogAccessibility } from "../../hooks/useDialogAccessibility";
 
 export default function AuthModal() {
   const { t } = useLanguage();
@@ -15,19 +16,19 @@ export default function AuthModal() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const firstFieldRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogAccessibility(isAuthModalOpen, dialogRef, closeAuthModal);
 
   useEffect(() => {
     if (!isAuthModalOpen) return;
     firstFieldRef.current?.focus();
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") closeAuthModal(); };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [closeAuthModal, isAuthModalOpen]);
+  }, [authMode, isAuthModalOpen]);
 
   if (!isAuthModalOpen) return null;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (busy) return;
     setError("");
     setMessage("");
     if (!authConfigured) { setError(t.auth.authNotConfigured); return; }
@@ -63,7 +64,7 @@ export default function AuthModal() {
 
   return (
     <div className="auth-overlay" onMouseDown={(event) => { if (event.currentTarget === event.target) closeAuthModal(); }}>
-      <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <div ref={dialogRef} tabIndex={-1} className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
         <button type="button" className="auth-close-btn" onClick={closeAuthModal} aria-label={t.auth.close}><FaTimes /></button>
         <h2 id="auth-title">{title}</h2>
         {authMode !== "reset" && authMode !== "update" && (

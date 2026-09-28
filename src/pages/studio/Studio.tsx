@@ -236,7 +236,7 @@ ${content}`;
       <Cursor />
       <NavBar />
 
-      <main className="studio-page">
+      <main id="main-content" tabIndex={-1} className="studio-page">
         <div className="studio-container">
           {/* TOP BAR */}
           <header className="studio-topbar">

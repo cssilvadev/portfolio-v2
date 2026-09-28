@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaCrown, FaTimes } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { supabase, type BillingPlan } from "../../lib/supabase";
 import "./SubscriptionModal.css";
+import { useDialogAccessibility } from "../../hooks/useDialogAccessibility";
 
 type AvailablePlan = BillingPlan & { active: boolean };
 
@@ -19,14 +20,8 @@ function SubscriptionDialog() {
   const [loading, setLoading] = useState(Boolean(supabase));
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeSubscriptionModal();
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [closeSubscriptionModal]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogAccessibility(true, dialogRef, closeSubscriptionModal);
 
   useEffect(() => {
     if (!supabase) return;
@@ -85,7 +80,7 @@ function SubscriptionDialog() {
 
   return (
     <div className="subscription-overlay" onMouseDown={(event) => { if (event.currentTarget === event.target) closeSubscriptionModal(); }}>
-      <div className="subscription-card" role="dialog" aria-modal="true" aria-labelledby="subscription-title">
+      <div ref={dialogRef} tabIndex={-1} className="subscription-card" role="dialog" aria-modal="true" aria-labelledby="subscription-title">
         <button type="button" className="subscription-close" onClick={closeSubscriptionModal} aria-label={t.auth.close}><FaTimes /></button>
         <div className="subscription-heading">
           <FaCrown aria-hidden="true" />

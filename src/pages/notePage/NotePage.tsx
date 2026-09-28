@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FaClock, FaCalendarAlt, FaTag, FaArrowLeft, FaShareAlt, FaCheck, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Cursor from "../../components/Cursor/Cursor";
@@ -14,10 +14,16 @@ export default function NotePage() {
   const { slug } = useParams();
   const { t, language } = useLanguage();
   const { notes } = useContent();
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  type ShareStatus = "idle" | "copying" | "copied" | "error";
+  const [shareResult, setShareResult] = useState<{ key: string; status: ShareStatus }>({ key: "", status: "idle" });
+  const shareTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const shareRequest = useRef(0);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
   const [note, setNote] = useState<LocalizedNote>();
   const noteKey = `${slug ?? ""}:${language}`;
+  const shareStatus = shareResult.key === noteKey ? shareResult.status : "idle";
+  const setShareStatus = (status: ShareStatus) => setShareResult({ key: noteKey, status });
   const [loadedNoteKey, setLoadedNoteKey] = useState("");
   const isLoading = loadedNoteKey !== noteKey;
 
@@ -32,34 +38,64 @@ export default function NotePage() {
   }, [language, noteKey, notes, slug]);
 
   useEffect(() => {
-    document.title = note ? `${note.title} — Christian Silva` : `${t.notes.notFound} — Christian Silva`;
+    document.title = `${isLoading ? t.notes.loading : note?.title ?? t.notes.notFound} — Christian Silva`;
     const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     description?.setAttribute("content", note?.excerpt ?? t.notes.notFoundDesc);
-  }, [note, t]);
+  }, [isLoading, note, t]);
 
   // Track reading progress
   useEffect(() => {
-    const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight > 0) {
-        const progress = (window.scrollY / totalHeight) * 100;
-        setScrollProgress(Math.min(100, Math.max(0, progress)));
-      }
+    let frame = 0;
+    const updateProgress = () => {
+      frame = 0;
+      const article = articleRef.current;
+      const bounds = article?.getBoundingClientRect();
+      // Start when the article enters view and finish at its final line.
+      const progress = !isLoading && bounds
+        ? Math.min(1, Math.max(0, (window.innerHeight - bounds.top) / Math.max(1, bounds.height)))
+        : 0;
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`;
     };
+    const scheduleUpdate = () => { if (!frame) frame = requestAnimationFrame(updateProgress); };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    const observer = new ResizeObserver(scheduleUpdate);
+    if (articleRef.current) observer.observe(articleRef.current);
+    updateProgress();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
+  }, [isLoading, note]);
 
   // Scroll to top on page load
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [slug]);
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
+  useEffect(() => {
+    return () => {
+      shareRequest.current += 1;
+      clearTimeout(shareTimer.current);
+    };
+  }, [noteKey]);
+
+  const handleShare = async () => {
+    if (shareStatus === "copying") return;
+    const request = ++shareRequest.current;
+    clearTimeout(shareTimer.current);
+    setShareStatus("copying");
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      if (request !== shareRequest.current) return;
+      setShareStatus("copied");
+      shareTimer.current = setTimeout(() => setShareStatus("idle"), 2500);
+    } catch {
+      if (request === shareRequest.current) setShareStatus("error");
+    }
   };
 
   // Find previous and next notes for footer navigation
@@ -92,42 +128,46 @@ export default function NotePage() {
 
       {/* Reading Progress Bar */}
       <div
+        ref={progressRef}
         className="reading-progress-bar"
-        style={{ width: `${scrollProgress}%` }}
+        aria-hidden="true"
       />
 
-      <main className="note-page">
+      <main id="main-content" tabIndex={-1} className="note-page">
         <div className="note-page-inner">
           <div className="note-page-nav">
-            <Link to="/#notes" className="note-back-link">
-              <FaArrowLeft className="nav-arrow" />
+            <Link to="/notes" className="note-back-link">
+              <FaArrowLeft className="nav-arrow" aria-hidden="true" />
               <span>{t.notes.backNotes}</span>
             </Link>
 
             {note && (
-              <button onClick={handleShare} className="note-share-btn">
-                {copiedLink ? (
+              <button type="button" onClick={() => void handleShare()} className="note-share-btn" disabled={shareStatus === "copying"}>
+                {shareStatus === "copied" ? (
                   <>
-                    <FaCheck className="share-icon" />
+                    <FaCheck className="share-icon" aria-hidden="true" />
                     <span>{t.notes.copied}</span>
                   </>
                 ) : (
                   <>
-                    <FaShareAlt className="share-icon" />
+                    <FaShareAlt className="share-icon" aria-hidden="true" />
                     <span>{t.notes.share}</span>
                   </>
                 )}
               </button>
             )}
           </div>
+          <p className={shareStatus === "error" ? "note-share-error" : "sr-only"} role="status">
+            {shareStatus === "copied" ? t.notes.copied : shareStatus === "error" ? t.notes.copyError : ""}
+          </p>
 
           {isLoading ? (
-            <div className="note-notfound" aria-live="polite">Loading…</div>
+            <div className="note-notfound" role="status">{t.notes.loading}</div>
           ) : !note ? (
             <div className="note-notfound">
               <h1>{t.notes.notFound}</h1>
               <p>{t.notes.notFoundDesc}</p>
-              <Link to="/#notes" className="return-btn">
+              <Link to="/notes" className="return-btn">
                 {t.notes.returnBtn}
               </Link>
             </div>
@@ -174,7 +214,7 @@ export default function NotePage() {
               )}
 
               {/* NOTE BODY */}
-              <article className="note-article-body">
+              <article ref={articleRef} className="note-article-body">
                 <MarkdownRenderer content={note.content} />
               </article>
 
