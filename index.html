@@ -10,7 +10,10 @@
       (function () {
         var theme = "dark";
         try {
-          if (localStorage.getItem("theme") === "light") theme = "light";
+          var choices = null;
+          try { choices = JSON.parse(localStorage.getItem("portfolio_storage_choices") || "null"); } catch (_) {}
+          var validChoices = choices && choices.version === 1 && typeof choices.rememberTheme === "boolean" && typeof choices.rememberLanguage === "boolean";
+          if ((!validChoices || choices.rememberTheme) && localStorage.getItem("theme") === "light") theme = "light";
         } catch (_) {
           // Storage can be unavailable; the default dark theme still works.
         }

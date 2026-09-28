@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, type Profile, type SubscriptionTier } from "../lib/supabase";
 import { captchaSiteKey } from "../lib/securityConfig";
+import { endLocalSession } from "../utils/session";
 
 type AuthContextValue = {
   user: User | null;
@@ -21,6 +22,7 @@ type AuthContextValue = {
   resetPassword: (email: string, captchaToken?: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  signOutThisBrowser: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   subscriptionTier: SubscriptionTier;
 };
@@ -143,6 +145,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchProfile(user.id);
   };
 
+  const signOutThisBrowser = async () => {
+    if (!supabase) throw new Error("Authentication is unavailable.");
+    await endLocalSession(supabase);
+    activeUserId.current = null;
+    setSession(null); setUser(null); setProfile(null);
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -162,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPassword,
       updatePassword,
       signOut,
+      signOutThisBrowser,
       refreshProfile,
       subscriptionTier: profile?.subscription_tier ?? "free",
     }}>

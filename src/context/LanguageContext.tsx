@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { translations, type Language, type Translations } from "../i18n/translations";
+import { useStoragePreferences } from "./StoragePreferencesContext";
+import { browserPreferenceStorage, readStoragePreferences } from "../utils/storagePreferences";
 
 interface LanguageContextType {
   language: Language;
@@ -10,11 +12,11 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children, initialLanguage }: { children: ReactNode; initialLanguage?: Language }) {
+  const { saveLanguage } = useStoragePreferences();
   const [language, setLanguageState] = useState<Language>(() => {
     if (initialLanguage) return initialLanguage;
     if (typeof window === "undefined") return "en";
-    let saved: string | null = null;
-    try { saved = localStorage.getItem("portfolio_lang"); } catch { /* Browser storage is optional. */ }
+    const saved = readStoragePreferences(browserPreferenceStorage()).language;
     if (saved === "en" || saved === "pt" || saved === "es") {
       return saved;
     }
@@ -27,13 +29,23 @@ export function LanguageProvider({ children, initialLanguage }: { children: Reac
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    try { localStorage.setItem("portfolio_lang", lang); } catch { /* Language switching still works. */ }
+    saveLanguage(lang);
     document.documentElement.setAttribute("lang", lang);
   };
 
   useEffect(() => {
     document.documentElement.setAttribute("lang", language);
   }, [language]);
+
+  useEffect(() => {
+    function syncLanguage(event: StorageEvent) {
+      if (event.storageArea !== browserPreferenceStorage() || ![null, "portfolio_lang", "portfolio_storage_choices"].includes(event.key)) return;
+      const saved = readStoragePreferences(browserPreferenceStorage()).language;
+      if (saved) setLanguageState(saved);
+    }
+    window.addEventListener("storage", syncLanguage);
+    return () => window.removeEventListener("storage", syncLanguage);
+  }, []);
 
   const value = {
     language,

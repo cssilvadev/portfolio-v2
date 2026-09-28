@@ -11,6 +11,8 @@ import "./App.css";
 import RouteMeta from "./components/RouteMeta";
 import type { InitialPage } from "./routing/initialPage";
 import Footer from "./components/Footer/Footer";
+import { StoragePreferencesProvider } from "./context/StoragePreferencesContext";
+import StorageSettings from "./components/StorageSettings/StorageSettings";
 
 const Studio = import.meta.env.DEV
   ? lazy(() => import("./pages/studio/Studio"))
@@ -41,7 +43,7 @@ export default function App({ initialPage }: { initialPage?: InitialPage }) {
   const FirstAdmin = initialPage?.key === "admin" ? initialPage.component : Admin;
   const FirstNotFound = initialPage?.key === "notfound" ? initialPage.component : NotFound;
   return (
-    <LanguageProvider>
+    <StoragePreferencesProvider><LanguageProvider>
       <AuthProvider>
         <ContentProvider>
           <div className="app-root">
@@ -66,9 +68,10 @@ export default function App({ initialPage }: { initialPage?: InitialPage }) {
             </BrowserRouter>
             <AuthModal />
             <SubscriptionModal />
+            <StorageSettings />
           </div>
         </ContentProvider>
       </AuthProvider>
-    </LanguageProvider>
+    </LanguageProvider></StoragePreferencesProvider>
   );
 }

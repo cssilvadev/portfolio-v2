@@ -7,5 +7,7 @@
 .privacy-reading h2 { font-size: clamp(1.3rem, 2vw, 1.7rem); letter-spacing: -.04em; margin-bottom: .8rem; }
 .privacy-reading article p { color: var(--text-muted); line-height: 1.9; }
 .privacy-reading a { color: var(--text); text-underline-offset: .3em; }
+.privacy-storage-button { display: block; min-height: 44px; margin-top: 1rem; padding: .5rem 0; border: 0; background: transparent; color: var(--text); font: inherit; font-size: .85rem; text-align: left; text-decoration: underline; text-underline-offset: .3em; cursor: pointer; }
+.privacy-storage-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .privacy-links { display: flex; flex-wrap: wrap; gap: 1.5rem; padding-top: 2rem; border-top: 1px solid color-mix(in srgb, var(--text) 15%, transparent); }
 @media(max-width: 760px) { .privacy-reading { grid-template-columns: 1fr; } .privacy-summary { position: static; } }

@@ -7,26 +7,18 @@ import { FlagIcon, FlagBR, FlagUS, FlagES } from "../Flags/Flags";
 import type { Language } from "../../i18n/translations";
 import "./NavBar.css";
 import { billingEnabled } from "../../lib/securityConfig";
-
-type Theme = "dark" | "light";
+import { useStoragePreferences } from "../../context/StoragePreferencesContext";
 
 export default function Navbar() {
   const { pathname, hash } = useLocation();
   const { language, setLanguage, t } = useLanguage();
+  const { theme, setTheme } = useStoragePreferences();
   const { user, profile, openAuthModal, openSubscriptionModal, signOut, subscriptionTier } = useAuth();
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(() => typeof window !== "undefined" && window.scrollY > 24);
   const [activeSection, setActiveSection] = useState(() => hash.slice(1) || "home");
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "dark";
-    try {
-      return localStorage.getItem("theme") === "light" ? "light" : "dark";
-    } catch {
-      return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-    }
-  });
   const navRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -64,19 +56,6 @@ export default function Navbar() {
     updateActive();
     return () => observer.disconnect();
   }, [pathname]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]')
-      ?.setAttribute("content", theme === "light" ? "only light" : "dark");
-    document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "light" ? "#f7f7f7" : "#000000");
-    try {
-      localStorage.setItem("theme", theme);
-    } catch {
-      // Theme switching still works when browser storage is unavailable.
-    }
-  }, [theme]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

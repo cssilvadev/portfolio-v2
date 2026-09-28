@@ -11,7 +11,7 @@
     "build": "tsc -b && vite build && node scripts/publish-static.mjs && node scripts/harden-publication.mjs",
     "lint": "eslint .",
     "check:publication": "node scripts/check-publication.mjs && node scripts/check-publication-security.mjs",
-    "check:security": "node scripts/check-security.mjs && node scripts/check-database-security.mjs",
+    "check:security": "node scripts/check-security.mjs && node scripts/check-database-security.mjs && node scripts/check-storage-preferences.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

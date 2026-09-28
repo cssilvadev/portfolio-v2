@@ -1,0 +1,31 @@
+.storage-overlay { position: fixed; inset: 0; z-index: 550; display: grid; place-items: center; padding: 1rem; background: rgb(0 0 0 / .55); backdrop-filter: blur(10px); }
+.storage-dialog { position: relative; width: min(100%, 620px); max-height: calc(100dvh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: clamp(1.4rem, 2.5vw, 2rem); border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 24px; background: var(--bg-soft); color: var(--text); box-shadow: 0 28px 100px rgb(0 0 0 / .3); animation: storage-arrive 240ms ease-out; }
+.storage-close { position: absolute; top: .5rem; right: .5rem; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; }
+.storage-eyebrow { margin: .5rem 2rem 1rem 0; color: var(--accent); font: .65rem/1.5 var(--font-mono); letter-spacing: .12em; }
+.storage-dialog h2 { max-width: 480px; margin: 0 1rem .8rem 0; font-size: clamp(1.7rem, 3vw, 2.4rem); letter-spacing: -.045em; line-height: 1.1; text-wrap: balance; }
+.storage-intro, .storage-session p { color: var(--text-muted); font-size: .85rem; line-height: 1.65; }
+.storage-preferences { min-width: 0; border: 0; padding: 0; margin: 1.4rem 0 .8rem; }
+.storage-preferences legend, .storage-session h3 { padding: 0; margin-bottom: .7rem; font-size: .85rem; font-weight: 600; }
+.storage-choice { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; min-height: 68px; padding: .7rem 0; border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent); cursor: pointer; }
+.storage-choice > span { display: grid; gap: .3rem; }
+.storage-choice strong { font-size: .9rem; font-weight: 500; }
+.storage-choice span span { color: var(--text-muted); font-size: .78rem; line-height: 1.5; }
+.storage-choice input { appearance: none; flex: 0 0 44px; width: 44px; height: 26px; border: 1px solid color-mix(in srgb, var(--text) 22%, transparent); border-radius: 999px; background: var(--bg); cursor: pointer; transition: background 180ms ease; }
+.storage-choice input::before { content: ""; display: block; width: 18px; height: 18px; margin: 3px; border-radius: 50%; background: var(--text-muted); transition: transform 180ms ease, background 180ms ease; }
+.storage-choice input:checked { background: var(--accent); border-color: var(--accent); }
+.storage-choice input:checked::before { transform: translateX(18px); background: white; }
+.storage-caption { display: block; color: var(--text-muted); font-size: .73rem; line-height: 1.6; margin: .6rem 0; }
+.storage-action { min-height: 44px; padding: .6rem .9rem; border: 1px solid color-mix(in srgb, var(--text) 20%, transparent); border-radius: 10px; background: transparent; color: var(--text); cursor: pointer; font-size: .8rem; }
+.storage-action:disabled { opacity: .55; cursor: not-allowed; }
+.storage-session { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent); }
+.storage-session p { margin-bottom: .75rem; font-size: .78rem; }
+.storage-status { min-height: 1.3rem; margin: .8rem 0; font-size: .78rem; line-height: 1.6; color: var(--text-muted); }
+.storage-warning { color: #ef6464; font-size: .78rem; line-height: 1.6; margin-top: .8rem; }
+[data-theme="light"] .storage-warning { color: #b91c1c; }
+.storage-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .75rem; padding-top: .7rem; }
+.storage-bottom a { color: var(--text-muted); font-size: .78rem; text-underline-offset: .25em; }
+.storage-bottom button { min-height: 44px; padding: .65rem 1.2rem; border: 0; border-radius: 999px; color: var(--bg); background: var(--text); font-size: .85rem; cursor: pointer; }
+.storage-dialog :is(button, a, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@keyframes storage-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .storage-dialog { animation: none; } .storage-choice input, .storage-choice input::before { transition: none; } }
+@media (forced-colors: active) { .storage-choice input { appearance: auto; } .storage-choice input::before { display: none; } }

@@ -12,10 +12,11 @@ import Lab from "../pages/lab/Lab";
 import Profile from "../pages/profile/Profile";
 import Privacy from "../pages/privacy/Privacy";
 import Footer from "../components/Footer/Footer";
+import { StoragePreferencesProvider } from "../context/StoragePreferencesContext";
 
 /** Same public components and context data as the browser, without effects. */
 export default function PublicDocument({ route, content }: { route: string; content: PublicSnapshot }) {
-  return <LanguageProvider initialLanguage="en"><AuthProvider><ContentProvider initialContent={content}>
+  return <StoragePreferencesProvider><LanguageProvider initialLanguage="en"><AuthProvider><ContentProvider initialContent={content}>
     <div className="app-root" data-prerender="true"><MemoryRouter basename={import.meta.env.BASE_URL} initialEntries={[`${import.meta.env.BASE_URL}${route}`]}>
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -29,5 +30,5 @@ export default function PublicDocument({ route, content }: { route: string; cont
       </Routes>
       <Footer />
     </MemoryRouter></div>
-  </ContentProvider></AuthProvider></LanguageProvider>;
+  </ContentProvider></AuthProvider></LanguageProvider></StoragePreferencesProvider>;
 }

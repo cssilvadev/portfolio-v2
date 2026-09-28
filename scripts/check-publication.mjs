@@ -45,6 +45,7 @@ try {
     assert.ok(html.includes(`<link rel="canonical" href="${route.url}"`), `Canonical mismatch: ${route.path}`);
     assert.ok(html.includes('id="main-content"') && html.includes("<h1"), `Missing readable initial HTML: ${route.path}`);
     if (route.path !== "admin") assert.ok(html.includes('data-prerender="true"'), "The actual page layout must be rendered");
+    if (route.path !== "admin") assert.ok(html.includes("Storage settings</button>"), "Storage controls must be discoverable on public routes");
     // Actual key/JWT patterns are checked by check-publication-security.mjs;
     // documentation may legitimately discuss the names of privileged roles.
     assert.doesNotThrow(() => JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1] ?? ""));
@@ -66,6 +67,8 @@ try {
     assert.ok(!home.includes('class="contact-form"'), "Never show a non-functional contact form");
   }
   assert.ok(manifest.routes.some(route => route.path === "privacy"), "Privacy notice must be published");
+  const privacyPage = await readFile("dist/privacy/index.html", "utf8");
+  assert.ok(privacyPage.includes('id="storage"') && privacyPage.includes("portfolio_storage_choices"), "Privacy notice must explain local storage and its minimal choice record");
   const article = await readFile("dist/notes/pedal-response-bench-note/index.html", "utf8");
   const visibleArticle = article.split('<script id="published-content"')[0];
   assert.ok(visibleArticle.replace(/<[^>]+>/g, "").includes("const normalized") && visibleArticle.includes('id="scope"'), "Markdown is pre-rendered, not just a JSON payload");
