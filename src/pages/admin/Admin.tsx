@@ -10,6 +10,7 @@ import { projects as localProjects } from "../../data/projects";
 import { supabase } from "../../lib/supabase";
 import "./Admin.css";
 import { getNoteConnection, type NoteFormat } from "../../data/editorial";
+import AdminMfaGate from "../../components/AdminMfaGate/AdminMfaGate";
 
 type CmsKind = "article" | "project" | "page";
 type CmsLanguage = "en" | "pt" | "es";
@@ -108,6 +109,14 @@ function entryToDraft(entry: CmsEntry): Draft {
 }
 
 export default function Admin() {
+  const { user, profile, loading, openAuthModal } = useAuth();
+  if (loading) return <main id="main-content" className="admin-state">Carregando sessão…</main>;
+  if (!user) return <main id="main-content" className="admin-state"><h1>Área administrativa</h1><p>Entre com sua conta de administrador para continuar.</p><button type="button" onClick={() => openAuthModal("login")}>Entrar</button><Link to="/">Voltar ao portfólio</Link></main>;
+  if (profile?.role !== "admin") return <main id="main-content" className="admin-state"><h1>Acesso negado</h1><p>Esta conta não possui permissão administrativa.</p><Link to="/">Voltar ao portfólio</Link></main>;
+  return <AdminMfaGate key={user.id}><AdminWorkspace /></AdminMfaGate>;
+}
+
+function AdminWorkspace() {
   const { user, profile, loading: authLoading, openAuthModal } = useAuth();
   const { refreshContent } = useContent();
   const [entries, setEntries] = useState<CmsEntry[]>([]);

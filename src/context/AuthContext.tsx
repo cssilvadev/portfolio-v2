@@ -1,6 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, type Profile, type SubscriptionTier } from "../lib/supabase";
+import { captchaSiteKey } from "../lib/securityConfig";
 
 type AuthContextValue = {
   user: User | null;
@@ -15,9 +16,9 @@ type AuthContextValue = {
   isSubscriptionModalOpen: boolean;
   openSubscriptionModal: () => void;
   closeSubscriptionModal: () => void;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string) => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+  signIn: (email: string, password: string, captchaToken?: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, captchaToken?: string) => Promise<void>;
+  resetPassword: (email: string, captchaToken?: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -34,11 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup" | "reset" | "update">("login");
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+  const activeUserId = useRef<string | null>(null);
 
   const fetchProfile = useCallback(async (userId: string) => {
     if (!supabase) return;
     const { data } = await supabase.from("profiles").select("id, email, full_name, avatar_url, role, subscription_tier").eq("id", userId).maybeSingle();
-    setProfile((data as Profile | null) ?? null);
+    if (activeUserId.current === userId) setProfile((data as Profile | null) ?? null);
   }, []);
 
   useEffect(() => {
@@ -49,14 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let active = true;
     void supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
       if (!active) return;
+      activeUserId.current = initialSession?.user.id ?? null;
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
       if (initialSession?.user) await fetchProfile(initialSession.user.id);
       if (active) setLoading(false);
+    }).catch(() => {
+      if (active) { activeUserId.current = null; setSession(null); setUser(null); setProfile(null); setLoading(false); }
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
       if (!active) return;
+      activeUserId.current = nextSession?.user.id ?? null;
+      setProfile(current => current?.id === activeUserId.current ? current : null);
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
       if (event === "PASSWORD_RECOVERY") {
@@ -82,31 +89,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthModalOpen(true);
   };
 
-  const signIn = async (email: string, password: string) => {
+  const requireCaptcha = (token?: string) => {
+    if (captchaSiteKey && !token) throw new Error("Security verification required.");
+  };
+
+  const signIn = async (email: string, password: string, captchaToken?: string) => {
     if (!supabase) throw new Error("Authentication is not configured.");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    requireCaptcha(captchaToken);
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password, options: { captchaToken } });
     if (error) throw error;
     setIsAuthModalOpen(false);
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, captchaToken?: string) => {
     if (!supabase) throw new Error("Authentication is not configured.");
+    requireCaptcha(captchaToken);
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
-        data: { full_name: fullName.trim() },
+        data: { full_name: fullName.trim().slice(0, 100) },
+        captchaToken,
         emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
       },
     });
     if (error) throw error;
-    setIsAuthModalOpen(false);
   };
 
-  const resetPassword = async (email: string) => {
+  const resetPassword = async (email: string, captchaToken?: string) => {
     if (!supabase) throw new Error("Authentication is not configured.");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    requireCaptcha(captchaToken);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}#reset-password`,
+      captchaToken,
     });
     if (error) throw error;
   };

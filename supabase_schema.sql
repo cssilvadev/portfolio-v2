@@ -111,7 +111,7 @@ create table if not exists public.cms_entry_translations (
   unique (entry_id, language)
 );
 
--- Server-only sliding window buckets used by Edge Functions. The key is a
+-- Server-only fixed window buckets used by Edge Functions. The key is a
 -- server-side SHA-256 digest, never a raw IP or user identifier.
 create table if not exists public.rate_limit_buckets (
   key_hash text primary key,
@@ -148,7 +148,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select exists (
+  select coalesce((select auth.jwt()->>'aal') = 'aal2', false) and exists (
     select 1
     from public.profiles
     where id = (select auth.uid())
@@ -270,14 +270,16 @@ create or replace function public.consume_rate_limit(
 returns table(allowed boolean, retry_after_seconds integer)
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   now_at timestamptz := timezone('utc', now());
   bucket public.rate_limit_buckets%rowtype;
   elapsed_seconds integer;
 begin
-  if p_key_hash is null or length(p_key_hash) < 32 or p_window_seconds < 1 or p_max_requests < 1 then
+  if p_key_hash is null or p_key_hash !~ '^[a-f0-9]{64}$' or
+    p_window_seconds is null or p_window_seconds < 1 or p_window_seconds > 86400 or
+    p_max_requests is null or p_max_requests < 1 or p_max_requests > 10000 then
     raise exception 'Invalid rate limit parameters';
   end if;
 
@@ -296,6 +298,7 @@ begin
     set window_started_at = now_at, request_count = 1, updated_at = now_at
     where key_hash = p_key_hash;
     return query select true, 0;
+    return;
   end if;
 
   if bucket.request_count < p_max_requests then
@@ -303,6 +306,7 @@ begin
     set request_count = bucket.request_count + 1, updated_at = now_at
     where key_hash = p_key_hash;
     return query select true, 0;
+    return;
   end if;
 
   return query select false, greatest(1, p_window_seconds - elapsed_seconds);

@@ -47,7 +47,23 @@ jobs:
       - name: Build
         env:
           VITE_CONTACT_FORM_ENDPOINT: ${{ secrets.VITE_CONTACT_FORM_ENDPOINT }}
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
         run: npm run build
+
+      - name: Security regression tests and dependency audit
+        run: |
+          npm run check:security
+          npm audit --audit-level=high
+
+      - name: Set up Deno for server functions
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.6
+
+      - name: Type-check server functions
+        run: |
+          deno check --frozen --config supabase/functions/deno.json supabase/functions/create-checkout-session/index.ts supabase/functions/stripe-webhook/index.ts
+          deno audit --lock=supabase/functions/deno.lock
 
       - name: Validate static publication
         run: npm run check:publication

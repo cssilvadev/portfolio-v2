@@ -3,19 +3,27 @@ import { useLanguage } from "../../context/LanguageContext";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 import "./Contact.css";
 import { useScrollEntrance } from "../../hooks/useScrollEntrance";
+import { Link } from "react-router-dom";
+import { activeContactEndpoint as endpoint } from "../../lib/securityConfig";
+import { contactLimits, validContactFields } from "../../utils/security";
 
 type FormState = "idle" | "sending" | "success" | "error";
 
 export default function Contact() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   useScrollEntrance(sectionRef);
   const [formState, setFormState] = useState<FormState>("idle");
-  const endpoint = import.meta.env.VITE_CONTACT_FORM_ENDPOINT?.trim();
+  const requestLock = useRef(false);
+  const copy = {
+    pt: { email: "Vamos conversar por e-mail.", detail: "O formulário ainda não está ativo. Este botão abre seu aplicativo de e-mail; nenhuma mensagem é enviada pelo site.", button: "Escrever um e-mail", privacy: "Como seus dados são tratados", processor: "Ao enviar, nome, e-mail e mensagem serão encaminhados pelo Formspree para responder ao seu contato." },
+    en: { email: "Let’s talk by email.", detail: "The form is not active yet. This button opens your email app; the site does not send a message.", button: "Write an email", privacy: "How your data is handled", processor: "Sending forwards your name, email and message through Formspree to respond to your inquiry." },
+    es: { email: "Hablemos por correo.", detail: "El formulario aún no está activo. Este botón abre tu aplicación de correo; el sitio no envía ningún mensaje.", button: "Escribir un correo", privacy: "Cómo se tratan tus datos", processor: "Al enviar, tu nombre, correo y mensaje se transmitirán mediante Formspree para responder a tu consulta." },
+  }[language];
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (formState === "sending") return;
+    if (requestLock.current) return;
     if (!endpoint) {
       setFormState("error");
       return;
@@ -24,12 +32,17 @@ export default function Contact() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     if (formData.get("website")) return;
+    const fields = Object.fromEntries(["firstName", "lastName", "email", "message"].map(key => [key, String(formData.get(key) ?? "").trim()])) as { firstName: string; lastName: string; email: string; message: string };
+    if (!validContactFields(fields)) { setFormState("error"); return; }
+    const payload = new FormData();
+    Object.entries(fields).forEach(([key, value]) => payload.set(key, value));
 
+    requestLock.current = true;
     setFormState("sending");
     try {
       const response = await fetch(endpoint, {
         method: "POST",
-        body: formData,
+        body: payload,
         headers: { Accept: "application/json" },
         signal: AbortSignal.timeout(15000),
       });
@@ -39,6 +52,8 @@ export default function Contact() {
       setFormState("success");
     } catch {
       setFormState("error");
+    } finally {
+      requestLock.current = false;
     }
   };
 
@@ -64,25 +79,30 @@ export default function Contact() {
         </div>
 
         <div className="contact-form-reveal" data-scroll-enter>
-        <div className="contact-right">
-          <h3 className="contact-form-title">{t.contact.formTitle}</h3>
+        <div className="contact-right" data-contact-mode={endpoint ? "form" : "email"}>
+          <h3 className="contact-form-title">{endpoint ? t.contact.formTitle : copy.email}</h3>
+          {!endpoint ? <div className="contact-email-mode">
+            <p>{copy.detail}</p>
+            <a className="contact-email-cta" href="mailto:christiansilva.dev@outlook.com">{copy.button} <span aria-hidden="true">↗</span></a>
+            <span className="contact-email-address">christiansilva.dev@outlook.com</span>
+          </div> : <>
           <form className="contact-form" method="post" onSubmit={handleSubmit} aria-busy={formState === "sending"}
             onChange={() => { if (formState !== "sending") setFormState("idle"); }}>
             <div className="contact-field">
               <label htmlFor="contact-first-name">{t.contact.firstName}</label>
-              <input id="contact-first-name" name="firstName" autoComplete="given-name" placeholder={t.contact.firstName} required />
+              <input id="contact-first-name" name="firstName" autoComplete="given-name" maxLength={contactLimits.name} placeholder={t.contact.firstName} required />
             </div>
             <div className="contact-field">
               <label htmlFor="contact-last-name">{t.contact.lastName}</label>
-              <input id="contact-last-name" name="lastName" autoComplete="family-name" placeholder={t.contact.lastName} required />
+              <input id="contact-last-name" name="lastName" autoComplete="family-name" maxLength={contactLimits.name} placeholder={t.contact.lastName} required />
             </div>
             <div className="contact-field contact-field-full">
               <label htmlFor="contact-email">{t.contact.email}</label>
-              <input id="contact-email" name="email" type="email" autoComplete="email" placeholder={t.contact.email} required />
+              <input id="contact-email" name="email" type="email" autoComplete="email" maxLength={contactLimits.email} placeholder={t.contact.email} required />
             </div>
             <div className="contact-field contact-field-full">
               <label htmlFor="contact-message">{t.contact.message}</label>
-              <textarea id="contact-message" name="message" autoComplete="off" placeholder={t.contact.message} rows={4} required />
+              <textarea id="contact-message" name="message" autoComplete="off" maxLength={contactLimits.message} placeholder={t.contact.message} rows={4} required />
             </div>
             <div className="contact-honeypot" aria-hidden="true">
               <label htmlFor="contact-website">Website</label>
@@ -103,6 +123,9 @@ export default function Contact() {
               </>
             )}
           </div>
+          <p className="contact-privacy">{copy.processor}</p>
+          </>}
+          <Link className="contact-privacy" to="/privacy">{copy.privacy} ↗</Link>
         </div>
         </div>
       </div>

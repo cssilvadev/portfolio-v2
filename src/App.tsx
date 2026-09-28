@@ -10,6 +10,7 @@ import Landing from "./pages/landing/Landing";
 import "./App.css";
 import RouteMeta from "./components/RouteMeta";
 import type { InitialPage } from "./routing/initialPage";
+import Footer from "./components/Footer/Footer";
 
 const Studio = import.meta.env.DEV
   ? lazy(() => import("./pages/studio/Studio"))
@@ -22,6 +23,7 @@ const NotFound = lazy(() => import("./pages/notFound/NotFound"));
 const Admin = lazy(() => import("./pages/admin/Admin"));
 const Lab = lazy(() => import("./pages/lab/Lab"));
 const Profile = lazy(() => import("./pages/profile/Profile"));
+const Privacy = lazy(() => import("./pages/privacy/Privacy"));
 
 function RouteLoading() {
   const { t } = useLanguage();
@@ -35,6 +37,7 @@ export default function App({ initialPage }: { initialPage?: InitialPage }) {
   const FirstNotePage = initialPage?.key === "note" ? initialPage.component : NotePage;
   const FirstLab = initialPage?.key === "lab" ? initialPage.component : Lab;
   const FirstProfile = initialPage?.key === "profile" ? initialPage.component : Profile;
+  const FirstPrivacy = initialPage?.key === "privacy" ? initialPage.component : Privacy;
   const FirstAdmin = initialPage?.key === "admin" ? initialPage.component : Admin;
   const FirstNotFound = initialPage?.key === "notfound" ? initialPage.component : NotFound;
   return (
@@ -53,11 +56,13 @@ export default function App({ initialPage }: { initialPage?: InitialPage }) {
                   <Route path="/notes/:slug" element={<FirstNotePage />} />
                   <Route path="/lab" element={<FirstLab />} />
                   <Route path="/profile" element={<FirstProfile />} />
+                  <Route path="/privacy" element={<FirstPrivacy />} />
                   <Route path="/admin" element={<FirstAdmin />} />
                   {Studio && <Route path="/studio" element={<Studio />} />}
                   <Route path="*" element={<FirstNotFound />} />
                 </Routes>
               </Suspense>
+              <Footer />
             </BrowserRouter>
             <AuthModal />
             <SubscriptionModal />

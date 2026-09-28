@@ -5,6 +5,7 @@ import { useLanguage } from "../../context/LanguageContext";
 import { supabase, type BillingPlan } from "../../lib/supabase";
 import "./SubscriptionModal.css";
 import { useDialogAccessibility } from "../../hooks/useDialogAccessibility";
+import { billingEnabled } from "../../lib/securityConfig";
 
 type AvailablePlan = BillingPlan & { active: boolean };
 
@@ -116,5 +117,5 @@ function SubscriptionDialog() {
 
 export default function SubscriptionModal() {
   const { isSubscriptionModalOpen } = useAuth();
-  return isSubscriptionModalOpen ? <SubscriptionDialog /> : null;
+  return billingEnabled && isSubscriptionModalOpen ? <SubscriptionDialog /> : null;
 }

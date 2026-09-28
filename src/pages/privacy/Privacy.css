@@ -1,0 +1,11 @@
+.privacy-page .editorial-page-header h1 { max-width: 850px; font-size: clamp(2.4rem, 6vw, 5rem); }
+.privacy-reading { display: grid; grid-template-columns: minmax(200px, .65fr) minmax(0, 1.65fr); gap: clamp(2rem, 6vw, 6rem); }
+.privacy-summary { align-self: start; position: sticky; top: 130px; border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding-top: 1.5rem; color: var(--text-muted); }
+.privacy-summary p { margin-bottom: 1.25rem; line-height: 1.75; }
+.privacy-reading article { max-width: 760px; }
+.privacy-reading article section { margin-bottom: 2.8rem; }
+.privacy-reading h2 { font-size: clamp(1.3rem, 2vw, 1.7rem); letter-spacing: -.04em; margin-bottom: .8rem; }
+.privacy-reading article p { color: var(--text-muted); line-height: 1.9; }
+.privacy-reading a { color: var(--text); text-underline-offset: .3em; }
+.privacy-links { display: flex; flex-wrap: wrap; gap: 1.5rem; padding-top: 2rem; border-top: 1px solid color-mix(in srgb, var(--text) 15%, transparent); }
+@media(max-width: 760px) { .privacy-reading { grid-template-columns: 1fr; } .privacy-summary { position: static; } }

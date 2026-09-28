@@ -1,8 +1,12 @@
 import Stripe from "npm:stripe@18.5.0";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.116.0";
+import { billingUrls, readLimitedBody } from "../_shared/security.ts";
+
+const urls = billingUrls(Deno.env.get("APP_ORIGIN") ?? "", Deno.env.get("APP_URL") ?? "");
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": Deno.env.get("APP_ORIGIN") ?? "*",
+  ...(urls ? { "Access-Control-Allow-Origin": urls.origin } : {}),
+  "Vary": "Origin",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
@@ -25,7 +29,7 @@ function getClientIp(request: Request) {
   return forwarded || request.headers.get("cf-connecting-ip")?.trim() || "unknown";
 }
 
-async function consumeLimit(admin: ReturnType<typeof createClient>, rawKey: string, salt: string) {
+async function consumeLimit(admin: SupabaseClient, rawKey: string, salt: string) {
   const keyHash = await sha256(`${salt}:${rawKey}`);
   const { data, error } = await admin.rpc("consume_rate_limit", {
     p_key_hash: keyHash,
@@ -33,14 +37,17 @@ async function consumeLimit(admin: ReturnType<typeof createClient>, rawKey: stri
     p_max_requests: 5,
   });
   if (error) throw error;
-  const result = Array.isArray(data) ? data[0] : data;
+  if (!Array.isArray(data) || data.length !== 1) throw new Error("Invalid rate limit decision");
+  const result = data[0];
   return {
     allowed: result?.allowed === true,
     retryAfterSeconds: Number(result?.retry_after_seconds ?? 60),
   };
 }
 
-Deno.serve(async (request) => {
+async function handleRequest(request: Request) {
+  if (Deno.env.get("BILLING_ENABLED") !== "true" || !urls) return json({ error: "Billing is not enabled" }, 503);
+  if (request.headers.get("origin") && request.headers.get("origin") !== urls.origin) return json({ error: "Origin not allowed" }, 403);
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
@@ -49,12 +56,12 @@ Deno.serve(async (request) => {
   const publishableKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
-  const appOrigin = Deno.env.get("APP_ORIGIN") ?? "";
-  const rateLimitSalt = Deno.env.get("RATE_LIMIT_SALT") || serviceRoleKey;
+  const rateLimitSalt = Deno.env.get("RATE_LIMIT_SALT") ?? "";
 
-  if (!authorization || !supabaseUrl || !publishableKey || !serviceRoleKey || !stripeSecretKey || !appOrigin) {
+  if (!supabaseUrl || !publishableKey || !serviceRoleKey || !stripeSecretKey || rateLimitSalt.length < 32) {
     return json({ error: "Billing is not configured" }, 503);
   }
+  if (!authorization) return json({ error: "Authentication required" }, 401);
 
   const userClient = createClient(supabaseUrl, publishableKey, {
     global: { headers: { Authorization: authorization } },
@@ -87,12 +94,11 @@ Deno.serve(async (request) => {
     if (!(request.headers.get("content-type") ?? "").toLowerCase().includes("application/json")) {
       return json({ error: "JSON required" }, 415);
     }
-    const contentLength = Number(request.headers.get("content-length") ?? 0);
-    if (Number.isFinite(contentLength) && contentLength > 2048) return json({ error: "Payload too large" }, 413);
-    const body = await request.text();
-    if (body.length > 2048) return json({ error: "Payload too large" }, 413);
+    const body = await readLimitedBody(request, 2048);
     payload = JSON.parse(body) as { planSlug?: unknown };
-  } catch {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) return json({ error: "Invalid JSON" }, 400);
+  } catch (error) {
+    if (error instanceof RangeError) return json({ error: "Payload too large" }, 413);
     return json({ error: "Invalid JSON" }, 400);
   }
 
@@ -107,23 +113,25 @@ Deno.serve(async (request) => {
     .maybeSingle();
   if (planError || !plan?.stripe_price_id) return json({ error: "Plan is unavailable" }, 409);
 
-  const { data: existingEntitlement } = await admin
+  const { data: existingEntitlement, error: entitlementError } = await admin
     .from("entitlements")
     .select("ends_at")
     .eq("user_id", user.id)
     .eq("plan_id", plan.id)
     .eq("status", "active")
     .maybeSingle();
+  if (entitlementError) return json({ error: "Entitlement check unavailable" }, 503);
   if (existingEntitlement && (!existingEntitlement.ends_at || new Date(existingEntitlement.ends_at).getTime() > Date.now())) {
     return json({ error: "Plan already active" }, 409);
   }
-  const { data: profile } = await admin
+  const { data: profile, error: profileError } = await admin
     .from("profiles")
     .select("stripe_customer_id")
     .eq("id", user.id)
     .maybeSingle();
+  if (profileError || !profile) return json({ error: "Profile unavailable" }, 503);
 
-  const stripe = new Stripe(stripeSecretKey, { apiVersion: "2025-06-30.basil" });
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: "2025-08-27.basil" });
   const mode = plan.kind === "recurring" ? "subscription" : "payment";
   const session = await stripe.checkout.sessions.create({
     mode,
@@ -133,9 +141,14 @@ Deno.serve(async (request) => {
       : { customer_email: user.email }),
     client_reference_id: user.id,
     metadata: { user_id: user.id, plan_slug: plan.slug },
-    success_url: `${appOrigin}/?checkout=success`,
-    cancel_url: `${appOrigin}/?checkout=cancelled`,
+    success_url: `${urls.app}/?checkout=success`,
+    cancel_url: `${urls.app}/?checkout=cancelled`,
   });
 
   return json({ url: session.url });
+}
+
+Deno.serve(async request => {
+  try { return await handleRequest(request); }
+  catch { return json({ error: "Checkout unavailable" }, 503); }
 });

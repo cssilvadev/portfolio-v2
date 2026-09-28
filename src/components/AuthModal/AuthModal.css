@@ -38,5 +38,8 @@
 .auth-message { margin-bottom: 1rem; font-size: 0.85rem; }
 .auth-message.error { color: #f87171; }
 .auth-message.success { color: #22c55e; }
+.auth-privacy { color: var(--text-muted); font-size: .78rem; line-height: 1.6; }
+.auth-privacy a { color: var(--accent); }
+.auth-captcha { min-height: 65px; width: 100%; }
 [data-theme="light"] .auth-message.error { color: #b91c1c; }
 [data-theme="light"] .auth-message.success { color: #15803d; }

@@ -4,6 +4,7 @@ import { getAssetUrl } from "../../utils/assets";
 import "./MarkdownRenderer.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { extractHeadings } from "../../utils/headings";
+import { safeContentHref } from "../../utils/security";
 
 interface MarkdownRendererProps {
   content: string;
@@ -196,16 +197,17 @@ function renderInline(text: string): React.ReactNode {
     // Links [text](url)
     const linkMatch = remaining.match(/^\[([^\]]+)\]\(([^)]+)\)/);
     if (linkMatch) {
+      const href = safeContentHref(linkMatch[2]);
       parts.push(
-        <a
+        href ? <a
           key={key++}
-          href={linkMatch[2]}
-          target={linkMatch[2].startsWith("http") ? "_blank" : undefined}
-          rel={linkMatch[2].startsWith("http") ? "noopener noreferrer" : undefined}
+          href={href}
+          target={href.startsWith("https:") ? "_blank" : undefined}
+          rel={href.startsWith("https:") ? "noopener noreferrer" : undefined}
           className="md-link"
         >
           {linkMatch[1]}
-        </a>
+        </a> : <span key={key++}>{linkMatch[1]}</span>
       );
       remaining = remaining.slice(linkMatch[0].length);
       continue;

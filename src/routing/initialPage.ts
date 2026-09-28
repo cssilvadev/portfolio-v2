@@ -14,6 +14,7 @@ export async function loadInitialPage(): Promise<InitialPage | undefined> {
     note: () => import("../pages/notePage/NotePage"),
     lab: () => import("../pages/lab/Lab"),
     profile: () => import("../pages/profile/Profile"),
+    privacy: () => import("../pages/privacy/Privacy"),
     admin: () => import("../pages/admin/Admin"),
   };
   if (key === "studio" && import.meta.env.DEV) return undefined;

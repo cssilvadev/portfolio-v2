@@ -1,0 +1,30 @@
+import assert from "node:assert/strict";
+import { createServer } from "vite";
+const server = await createServer({ envDir: false, server: { middlewareMode: true }, appType: "custom" });
+try {
+  const { safeContentHref, contactEndpoint, validContactFields, isBrowserSupabaseKey } = await server.ssrLoadModule("/src/utils/security.ts");
+  for (const href of ["javascript:alert(1)", "data:text/html,hello", "//evil.invalid", "https://user:secret@evil.invalid", "https:\\evil.invalid", "java\nscript:alert(1)", "vbscript:hello", "file:///test", "http://example.invalid"]) assert.equal(safeContentHref(href), undefined);
+  for (const href of ["https://example.invalid/", "/portfolio-v2/notes", "#heading", "mailto:hello@example.invalid"]) assert.equal(safeContentHref(href), href);
+  assert.equal(contactEndpoint("https://formspree.io/f/abcdefgh"), "https://formspree.io/f/abcdefgh");
+  for (const href of [undefined, "", "http://formspree.io/f/abcdefgh", "https://formspree.io.evil.invalid/f/abcdefgh", "https://formspree.io/f/abcdefgh?redirect=1", "https://user@formspree.io/f/abcdefgh", "https://formspree.io/f/a", "https://evil.invalid/f/abcdefgh"]) assert.equal(contactEndpoint(href), undefined);
+  const fields = { firstName: "Test", lastName: "Person", email: "test@example.invalid", message: "Hello" };
+  assert.equal(validContactFields(fields), true);
+  for (const override of [{ firstName: " " }, { firstName: "a".repeat(101) }, { email: "not-an-email" }, { message: "a".repeat(5001) }, { message: " " }]) assert.equal(validContactFields({ ...fields, ...override }), false);
+  const jwt = role => `e30.${Buffer.from(JSON.stringify({ role })).toString("base64url")}.signature`;
+  assert.equal(isBrowserSupabaseKey(jwt("anon")), true);
+  for (const key of [undefined, "", "sb_secret_abcdefghijklmnop", jwt("service_role"), jwt("authenticated"), "not-a-key"]) assert.equal(isBrowserSupabaseKey(key), false);
+  const { readLimitedBody, subscriptionPeriod, billingUrls } = await server.ssrLoadModule("/supabase/functions/_shared/security.ts");
+  const request = body => new Request("https://example.invalid", { method: "POST", body });
+  assert.equal(await readLimitedBody(request("abc"), 3), "abc");
+  await assert.rejects(readLimitedBody(request("abcd"), 3), RangeError);
+  // Multibyte characters must be limited in bytes, not string.length.
+  await assert.rejects(readLimitedBody(request("éé"), 3), RangeError);
+  const stream = new ReadableStream({ start(controller) { controller.enqueue(new TextEncoder().encode("abc")); controller.enqueue(new TextEncoder().encode("def")); controller.close(); } });
+  await assert.rejects(readLimitedBody(new Request("https://example.invalid", { method: "POST", body: stream, duplex: "half" }), 5), RangeError);
+  const item = { current_period_start: 1700000000, current_period_end: 1702592000 };
+  assert.deepEqual(subscriptionPeriod([item]), { start: "2023-11-14T22:13:20.000Z", end: "2023-12-14T22:13:20.000Z" });
+  for (const items of [[], [item, item], [{ ...item, current_period_end: 0 }], [{ ...item, current_period_end: Infinity }]]) assert.throws(() => subscriptionPeriod(items));
+  assert.deepEqual(billingUrls("https://cssilvadev.github.io", "https://cssilvadev.github.io/portfolio-v2/"), { origin: "https://cssilvadev.github.io", app: "https://cssilvadev.github.io/portfolio-v2" });
+  for (const values of [["https://cssilvadev.github.io/portfolio-v2", "https://cssilvadev.github.io/portfolio-v2"], ["https://example.invalid", "https://evil.invalid"], ["http://example.invalid", "http://example.invalid"], ["https://user@example.invalid", "https://example.invalid"]]) assert.equal(billingUrls(...values), undefined);
+  console.log("Security helpers passed: URL protocols, contact processor/limits, public keys, streamed byte limits, billing origins and Stripe item periods.");
+} finally { await server.close(); }

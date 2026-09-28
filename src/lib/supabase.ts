@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { isBrowserSupabaseKey } from "../utils/security";
 
 // These values are intentionally public. Supabase publishable keys identify the
 // project in browser apps; authorization remains enforced by Auth and RLS.
@@ -39,24 +40,23 @@ const isValidSupabaseUrl = (value: string | undefined) => {
   }
 };
 
-const isValidPublishableKey = (value: string | undefined) => Boolean(
-  value &&
-  !value.startsWith("your_") &&
-  !value.includes("placeholder") &&
-  !value.startsWith("sb_secret_"),
-);
+if (configuredSupabaseAnonKey && !isBrowserSupabaseKey(configuredSupabaseAnonKey)) {
+  throw new Error("Invalid public Supabase configuration. Privileged keys must never enter the browser build.");
+}
 
 const supabaseUrl = isValidSupabaseUrl(configuredSupabaseUrl)
   ? configuredSupabaseUrl
   : defaultSupabaseUrl;
-const supabaseAnonKey = isValidPublishableKey(configuredSupabaseAnonKey)
+const supabaseAnonKey = isBrowserSupabaseKey(configuredSupabaseAnonKey)
   ? configuredSupabaseAnonKey
   : defaultSupabasePublishableKey;
+
+export const publicSupabaseOrigin = new URL(supabaseUrl!).origin;
 
 export const supabase = isValidSupabaseUrl(supabaseUrl) &&
   supabaseUrl &&
   supabaseAnonKey &&
-  isValidPublishableKey(supabaseAnonKey)
+  isBrowserSupabaseKey(supabaseAnonKey)
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         flowType: "pkce",

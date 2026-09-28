@@ -10,6 +10,8 @@ import NotesIndex from "../pages/notes/NotesIndex";
 import NotePage from "../pages/notePage/NotePage";
 import Lab from "../pages/lab/Lab";
 import Profile from "../pages/profile/Profile";
+import Privacy from "../pages/privacy/Privacy";
+import Footer from "../components/Footer/Footer";
 
 /** Same public components and context data as the browser, without effects. */
 export default function PublicDocument({ route, content }: { route: string; content: PublicSnapshot }) {
@@ -23,7 +25,9 @@ export default function PublicDocument({ route, content }: { route: string; cont
         <Route path="/notes/:slug" element={<NotePage />} />
         <Route path="/lab" element={<Lab />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/privacy" element={<Privacy />} />
       </Routes>
+      <Footer />
     </MemoryRouter></div>
   </ContentProvider></AuthProvider></LanguageProvider>;
 }

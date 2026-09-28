@@ -45,7 +45,7 @@ try {
   const template = await readFile(path.join(output, "index.html"), "utf8");
   const href = route => new URL(route ? `${route.replace(/^\/+|\/+$/g, "")}/` : "", siteUrl).href;
   const manifest = JSON.parse(await readFile(path.join(output, ".vite/manifest.json"), "utf8"));
-  const moduleFor = route => route.startsWith("projects/") ? "src/pages/projectPage/ProjectPage.tsx" : route.startsWith("notes/") ? "src/pages/notePage/NotePage.tsx" : ({ projects: "src/pages/projectIndex/ProjectIndex.tsx", notes: "src/pages/notes/NotesIndex.tsx", lab: "src/pages/lab/Lab.tsx", profile: "src/pages/profile/Profile.tsx" })[route] ?? "src/main.tsx";
+  const moduleFor = route => route.startsWith("projects/") ? "src/pages/projectPage/ProjectPage.tsx" : route.startsWith("notes/") ? "src/pages/notePage/NotePage.tsx" : ({ projects: "src/pages/projectIndex/ProjectIndex.tsx", notes: "src/pages/notes/NotesIndex.tsx", lab: "src/pages/lab/Lab.tsx", profile: "src/pages/profile/Profile.tsx", privacy: "src/pages/privacy/Privacy.tsx" })[route] ?? "src/main.tsx";
   const routeStyles = key => {
     const styles = new Set();
     const visited = new Set();
@@ -60,7 +60,7 @@ try {
     collect(key);
     return [...styles].filter(file => !template.includes(`/portfolio-v2/${file}`)).map(file => `<link rel="stylesheet" href="/portfolio-v2/${escape(file)}">`).join("");
   };
-  const pages = ["", "projects", "notes", "lab", "profile", "admin", ...projects.map(project => `projects/${project.slug}`)].map(route => ({ route }));
+  const pages = ["", "projects", "notes", "lab", "profile", "privacy", "admin", ...projects.map(project => `projects/${project.slug}`)].map(route => ({ route }));
   await mkdir(path.join(output, "content"), { recursive: true });
   for (const note of notes) {
     const translations = await Promise.all(["en", "pt", "es"].map(language => loadNoteBySlug(note.slug, language, notes)));

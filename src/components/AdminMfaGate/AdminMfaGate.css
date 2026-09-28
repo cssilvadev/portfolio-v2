@@ -1,0 +1,14 @@
+.mfa-page { min-height: 100svh; padding: 7rem 1.5rem 3rem; display: grid; place-items: center; background: var(--bg); }
+.mfa-card { width: min(100%, 560px); padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid color-mix(in srgb, var(--text) 15%, transparent); border-radius: 24px; background: var(--bg-soft); }
+.mfa-card h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.08; letter-spacing: -.05em; margin: 1rem 0; }
+.mfa-card p { color: var(--text-muted); margin-bottom: 1.5rem; }
+.mfa-card button { padding: .8rem 1rem; min-height: 44px; border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 12px; background: var(--text); color: var(--bg); cursor: pointer; }
+.mfa-card button:disabled { opacity: .55; cursor: wait; }
+.mfa-enrollment { display: grid; justify-items: center; gap: 1rem; margin: 1.5rem 0; }
+.mfa-enrollment img { background: white; border-radius: 12px; padding: .75rem; }
+.mfa-enrollment details { max-width: 100%; overflow-wrap: anywhere; }
+.mfa-enrollment code { display: block; margin-top: .75rem; user-select: all; }
+.mfa-form { display: grid; gap: .75rem; margin: 1.5rem 0; }
+.mfa-form input, .mfa-form select { min-height: 48px; width: 100%; border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 10px; padding: .75rem; background: var(--bg); color: var(--text); }
+.mfa-form input { font-family: monospace; letter-spacing: .35em; font-size: 1.3rem; }
+.mfa-card .mfa-signout { margin-top: 1rem; background: transparent; color: var(--text-muted); }

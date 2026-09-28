@@ -18,7 +18,8 @@ export function routeMeta(pathname: string, language: Language, projects: Projec
   else if (path === "notes") { title = "Notes & Logs — Christian Silva"; }
   else if (path === "lab") { title = `${editorial.lab[language]} — Christian Silva`; description = editorial.simulation[language]; image = "/projects/g27-pedal-adapter.svg"; }
   else if (path === "profile") { title = `${editorial.profile[language]} — Christian Silva`; }
+  else if (path === "privacy") { title = `${language === "pt" ? "Privacidade" : language === "es" ? "Privacidad" : "Privacy"} — Christian Silva`; description = language === "pt" ? "Dados, preferências locais, fornecedores e solicitações de privacidade neste portfólio." : language === "es" ? "Datos, preferencias locales, proveedores y solicitudes de privacidad en este portafolio." : "Data, local preferences, providers and privacy requests in this portfolio."; }
   if (/\.svg(?:\?|$)/i.test(image)) image = "/images/me.jpg";
-  const indexable = ["", "projects", "notes", "lab", "profile"].includes(path) || Boolean(project || note);
+  const indexable = ["", "projects", "notes", "lab", "profile", "privacy"].includes(path) || Boolean(project || note);
   return { title, description, image: image.startsWith("https://") ? image : new URL(image.replace(/^\//, ""), siteUrl).href, canonical: new URL(path ? `${path}/` : "", siteUrl).href, type, indexable };
 }

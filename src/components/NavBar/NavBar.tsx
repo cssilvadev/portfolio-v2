@@ -6,6 +6,7 @@ import { useLanguage } from "../../context/LanguageContext";
 import { FlagIcon, FlagBR, FlagUS, FlagES } from "../Flags/Flags";
 import type { Language } from "../../i18n/translations";
 import "./NavBar.css";
+import { billingEnabled } from "../../lib/securityConfig";
 
 type Theme = "dark" | "light";
 
@@ -230,7 +231,7 @@ export default function Navbar() {
                     <FaCrown aria-hidden="true" /> {t.auth.admin}
                   </Link>
                 )}
-                {subscriptionTier === "free" && (
+                {billingEnabled && subscriptionTier === "free" && (
                   <button type="button" onClick={() => { closeMenu(); openSubscriptionModal(); }}>
                     <FaCrown aria-hidden="true" /> {t.billing.upgrade}
                   </button>
