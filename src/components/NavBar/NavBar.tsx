@@ -19,8 +19,11 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(() => window.scrollY > 24);
   const [activeSection, setActiveSection] = useState(() => hash.slice(1) || "home");
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem("theme") as Theme | null;
-    return saved ?? "dark";
+    try {
+      return localStorage.getItem("theme") === "light" ? "light" : "dark";
+    } catch {
+      return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    }
   });
   const navRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -62,9 +65,15 @@ export default function Navbar() {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
+    document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]')
+      ?.setAttribute("content", theme === "light" ? "only light" : "dark");
     document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
       ?.setAttribute("content", theme === "light" ? "#f7f7f7" : "#000000");
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      // Theme switching still works when browser storage is unavailable.
+    }
   }, [theme]);
 
   useEffect(() => {

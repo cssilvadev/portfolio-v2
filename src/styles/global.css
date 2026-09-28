@@ -44,7 +44,8 @@
 
 
 [data-theme="light"] {
-  color-scheme: light;
+  /* Keep browser auto-darkening from recoloring the explicitly selected theme. */
+  color-scheme: only light;
   --bg: #f7f7f7;
   --bg-soft: #ffffff;
   --text: #000000;

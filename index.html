@@ -4,6 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
+    <script>
+      // Declare the saved theme before styles/React load, including on deep links.
+      (function () {
+        var theme = "dark";
+        try {
+          if (localStorage.getItem("theme") === "light") theme = "light";
+        } catch (_) {
+          // Storage can be unavailable; the default dark theme still works.
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+        document.querySelector('meta[name="color-scheme"]').setAttribute(
+          "content", theme === "light" ? "only light" : "dark"
+        );
+        document.querySelector('meta[name="theme-color"]').setAttribute(
+          "content", theme === "light" ? "#f7f7f7" : "#000000"
+        );
+      })();
+    </script>
     <title>Christian Silva — Full Stack & Firmware Engineer</title>
     <meta
       name="description"
