@@ -15,6 +15,17 @@ function unsafeUrlCharacters(value: string) {
   return value.includes("\\") || Array.from(value).some(char => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127);
 }
 
+/** Supabase receives credentials: reject ambiguous/path-bearing backend URLs. */
+export function isSafeSupabaseUrl(value: string | undefined, allowLocalhost = false): boolean {
+  if (!value || unsafeUrlCharacters(value)) return false;
+  try {
+    const url = new URL(value);
+    const transport = url.protocol === "https:" || (allowLocalhost && url.protocol === "http:" &&
+      ["localhost", "127.0.0.1"].includes(url.hostname));
+    return transport && !url.username && !url.password && !url.search && !url.hash && url.pathname === "/";
+  } catch { return false; }
+}
+
 /** Explicit protocol allowlist for authored links; raw HTML is never rendered. */
 export function safeContentHref(value: string): string | undefined {
   if (unsafeUrlCharacters(value)) return undefined;

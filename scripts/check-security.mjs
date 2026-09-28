@@ -1,8 +1,20 @@
 import assert from "node:assert/strict";
 import { createServer } from "vite";
+import { renderToStaticMarkup } from "react-dom/server";
 const server = await createServer({ envDir: false, server: { middlewareMode: true }, appType: "custom" });
 try {
-  const { safeContentHref, contactEndpoint, validContactFields, isBrowserSupabaseKey } = await server.ssrLoadModule("/src/utils/security.ts");
+  const { safeContentHref, contactEndpoint, validContactFields, isBrowserSupabaseKey, isSafeSupabaseUrl } = await server.ssrLoadModule("/src/utils/security.ts");
+  assert.equal(isSafeSupabaseUrl("https://project.supabase.co"), true);
+  assert.equal(isSafeSupabaseUrl("http://localhost:54321", true), true);
+  for (const url of [undefined, "", "http://localhost:54321", "http://example.invalid", "https://user:pass@example.invalid", "https://project.supabase.co/auth", "https://project.supabase.co?key=x", "https://project.supabase.co#x", "https:\\project.supabase.co", "https://project.supabase.co\n"]) assert.equal(isSafeSupabaseUrl(url), false);
+  const { default: ErrorBoundary } = await server.ssrLoadModule("/src/components/ErrorBoundary/ErrorBoundary.tsx");
+  const boundary = new ErrorBoundary({ children: "Safe child" });
+  assert.equal(boundary.render(), "Safe child");
+  boundary.state = ErrorBoundary.getDerivedStateFromError(new Error("PRIVATE_FIXTURE_TOKEN"));
+  assert.deepEqual(boundary.state, { hasError: true });
+  const failureMarkup = renderToStaticMarkup(boundary.render());
+  assert.ok(failureMarkup.includes("This page could not be displayed"));
+  assert.ok(!failureMarkup.includes("PRIVATE_FIXTURE_TOKEN"));
   for (const href of ["javascript:alert(1)", "data:text/html,hello", "//evil.invalid", "https://user:secret@evil.invalid", "https:\\evil.invalid", "java\nscript:alert(1)", "vbscript:hello", "file:///test", "http://example.invalid"]) assert.equal(safeContentHref(href), undefined);
   for (const href of ["https://example.invalid/", "/portfolio-v2/notes", "#heading", "mailto:hello@example.invalid"]) assert.equal(safeContentHref(href), href);
   assert.equal(contactEndpoint("https://formspree.io/f/abcdefgh"), "https://formspree.io/f/abcdefgh");

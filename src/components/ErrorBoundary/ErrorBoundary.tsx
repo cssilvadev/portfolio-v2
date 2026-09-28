@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, type ReactNode } from "react";
 import "./ErrorBoundary.css";
 
 interface Props {
@@ -6,31 +6,30 @@ interface Props {
 }
 
 interface State {
-  error: Error | null;
+  hasError: boolean;
 }
 
 export default class ErrorBoundary extends Component<Props, State> {
-  state: State = { error: null };
+  state: State = { hasError: false };
 
-  static getDerivedStateFromError(error: Error): State {
-    return { error };
+  static getDerivedStateFromError(): State {
+    return { hasError: true };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("Unhandled render error:", error, info.componentStack);
+  componentDidCatch() {
+    // Error messages/stacks can contain private input, URLs or session details.
+    console.error("The page could not be rendered.");
   }
 
   render() {
-    if (this.state.error) {
+    if (this.state.hasError) {
       return (
         <div className="app-crash-screen">
           <div className="app-crash-card">
-            <span className="app-crash-badge">Runtime Error</span>
-            <h1>Something broke while rendering the page</h1>
-            <p>{this.state.error.message}</p>
+            <span className="app-crash-badge">Portfolio</span>
+            <h1>This page could not be displayed</h1>
             <p className="app-crash-hint">
-              If you are running this locally, check the terminal error and restart the dev server
-              after fixing the reported issue.
+              Please reload the page. No internal error details are displayed here.
             </p>
           </div>
         </div>

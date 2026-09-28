@@ -67,8 +67,8 @@ function loadStudioDraft(): StudioDraft {
   try {
     const saved = localStorage.getItem(STUDIO_DRAFT_KEY);
     return saved ? JSON.parse(saved) : {};
-  } catch (err) {
-    console.error("Failed to parse saved draft", err);
+  } catch {
+    console.error("Failed to parse saved draft.");
     return {};
   }
 }

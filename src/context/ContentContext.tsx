@@ -157,8 +157,8 @@ export function ContentProvider({ children, initialContent }: { children: ReactN
   useEffect(() => {
     let active = true;
     const timer = window.setTimeout(() => {
-      void refreshContent().catch((error) => {
-        if (active) console.warn("CMS content is unavailable; using local fallback.", error);
+      void refreshContent().catch(() => {
+        if (active) console.warn("CMS content is unavailable; using local fallback.");
       }).finally(() => {
         if (active) setLoading(false);
       });

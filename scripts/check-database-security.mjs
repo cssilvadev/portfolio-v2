@@ -34,7 +34,47 @@ try {
   // PGlite has gen_random_uuid in core, but not the optional pgcrypto extension.
   const schema = (await readFile("supabase_schema.sql", "utf8")).replace("create extension if not exists pgcrypto;", "");
   await db.exec(schema);
+  // The production preflight exports configuration only, and must work read-only.
+  await db.exec("begin read only");
+  const recovery = JSON.parse((await db.query(await readFile("scripts/security-recovery-snapshot.sql", "utf8"))).rows[0].recovery_snapshot);
+  await db.exec("rollback");
+  await equal(recovery.project_ref, "wigksclnaybjqmoktsje");
+  await equal(recovery.functions.map(fn => `${fn.schema}.${fn.name}`), ["private.is_admin", "public.consume_rate_limit"]);
+  await equal(recovery.functions.every(fn => fn.definition.startsWith("CREATE OR REPLACE FUNCTION") && fn.owner && fn.acl && Array.isArray(fn.grants)), true);
+  await equal(recovery.private_schema.grants.some(grant => grant.grantee === "authenticated" && grant.privilege === "USAGE"), true);
+  await equal(recovery.table_security.length, 4);
+  await equal(recovery.table_security.every(table => table.rls_enabled), true);
+  await equal(recovery.policies.some(policy => policy.policyname === "Admins can update CMS entries"), true);
+  await equal(recovery.profile_triggers.some(trigger => trigger.name === "protect_profile_fields"), true);
   await db.exec(await readFile("supabase/migrations/202609280001_security_hardening.sql", "utf8"));
+  // Also verify the migration works on a fresh schema without legacy triggers.
+  await db.exec(await readFile("supabase/migrations/202609280002_least_privilege.sql", "utf8"));
+  await db.exec(`
+    create function public.prevent_client_billing_changes() returns trigger language plpgsql
+    security definer set search_path = 'public' as $$
+    begin
+      if auth.uid() is not null and (
+        new.subscription_tier is distinct from old.subscription_tier or
+        new.stripe_customer_id is distinct from old.stripe_customer_id
+      ) then raise exception 'Billing fields are server-managed'; end if;
+      new.updated_at = timezone('utc'::text, now());
+      return new;
+    end; $$;
+    create trigger protect_profile_billing_fields before update on public.profiles
+    for each row execute function public.prevent_client_billing_changes();
+  `);
+  // Reproduce the excessive legacy grants observed on the real project.
+  await db.exec("grant all on public.billing_plans, public.cms_entries, public.cms_entry_translations, public.profiles, public.subscriptions, public.entitlements to anon, authenticated");
+  await db.exec("grant execute on function public.handle_new_user(), public.prevent_client_billing_changes(), public.prevent_client_protected_profile_changes(), public.touch_updated_at() to public, anon, authenticated, service_role");
+  await db.exec(await readFile("supabase/migrations/202609280002_least_privilege.sql", "utf8"));
+  const accessReview = JSON.parse((await db.query(await readFile("scripts/security-access-review.sql", "utf8"))).rows[0].access_review);
+  await equal(accessReview.tables_and_views.every(table => table.rls && !table.anon_write && !table.authenticated_ddl), true);
+  await equal(accessReview.tables_and_views.filter(table => table.anon_read).map(table => table.name), ["billing_plans", "cms_entries", "cms_entry_translations"]);
+  await equal(accessReview.schemas.every(schema => !schema.anon_create && !schema.authenticated_create), true);
+  await equal(accessReview.functions.filter(fn => fn.return_type === "trigger").every(fn => !fn.anon_execute && !fn.authenticated_execute && fn.configuration[0] === 'search_path=""'), true);
+  // Idempotent: reapplication must not expand privileges or replace data/policies.
+  await db.exec(await readFile("supabase/migrations/202609280002_least_privilege.sql", "utf8"));
+  await equal(JSON.parse((await db.query(await readFile("scripts/security-access-review.sql", "utf8"))).rows[0].access_review), accessReview);
   await db.query("insert into auth.users(id, email, raw_user_meta_data) values ($1,'a@example.invalid', '{\"role\":\"admin\",\"subscription_tier\":\"lifetime\"}'), ($2,'b@example.invalid','{}'), ($3,'admin@example.invalid','{}')", [userA, userB, adminId]);
   await equal((await db.query("select role, subscription_tier from profiles where id=$1", [userA])).rows, [{ role: "user", subscription_tier: "free" }]);
   await db.query("update profiles set role='admin' where id=$1", [adminId]);
@@ -45,6 +85,8 @@ try {
   await db.query("insert into entitlements(user_id,plan_id,source,status) select $1::uuid,id,'admin_grant','active' from billing_plans where slug='pro-monthly' union all select $2::uuid,id,'admin_grant','active' from billing_plans where slug='pro-monthly'", [userA, userB]);
 
   await identity("anon");
+  await denied("truncate cms_entries cascade");
+  await denied("select public.handle_new_user()");
   await equal((await db.query("select slug from cms_entries")).rows, [{ slug: "public-note" }]);
   await equal((await db.query("select title from cms_entry_translations")).rows, [{ title: "Public" }]);
   await denied("select * from profiles");
@@ -57,6 +99,8 @@ try {
   await denied("select * from consume_rate_limit($1,60,5)", ["a".repeat(64)]);
 
   await identity("authenticated", userA);
+  await denied("truncate profiles cascade");
+  await denied("select public.prevent_client_protected_profile_changes()");
   await equal((await db.query("select id from profiles")).rows, [{ id: userA }]);
   await equal((await db.query("select id from profiles where id=$1", [userB])).rows, []);
   for (const table of ["subscriptions", "entitlements"]) {
