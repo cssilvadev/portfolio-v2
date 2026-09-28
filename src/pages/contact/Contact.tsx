@@ -66,7 +66,7 @@ export default function Contact() {
         <div className="contact-form-reveal" data-scroll-enter>
         <div className="contact-right">
           <h3 className="contact-form-title">{t.contact.formTitle}</h3>
-          <form className="contact-form" onSubmit={handleSubmit} aria-busy={formState === "sending"}
+          <form className="contact-form" method="post" onSubmit={handleSubmit} aria-busy={formState === "sending"}
             onChange={() => { if (formState !== "sending") setFormState("idle"); }}>
             <div className="contact-field">
               <label htmlFor="contact-first-name">{t.contact.firstName}</label>
@@ -88,7 +88,7 @@ export default function Contact() {
               <label htmlFor="contact-website">Website</label>
               <input id="contact-website" name="website" tabIndex={-1} autoComplete="off" />
             </div>
-            <button type="submit" disabled={formState === "sending"}>
+            <button type="submit" disabled={formState === "sending" || typeof window === "undefined"}>
               {formState === "sending" ? t.contact.sending : t.contact.sendBtn}
               {formState !== "sending" && <span aria-hidden="true">↗</span>}
             </button>

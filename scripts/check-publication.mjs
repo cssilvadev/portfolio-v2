@@ -56,6 +56,9 @@ try {
     // All bundled scripts referenced by every deep page must exist.
     for (const match of html.matchAll(/(?:src|href)="\/portfolio-v2\/(assets\/[^"?]+)"/g)) assert.ok((await stat(path.join("dist", match[1]))).isFile());
   }
+  const home = await readFile("dist/index.html", "utf8");
+  assert.ok(/<form[^>]*class="contact-form"[^>]*method="post"/.test(home), "Contact data must never fall back to GET query parameters");
+  assert.ok(/<button type="submit" disabled=""/.test(home), "Contact submission requires the client handler to be ready");
   const article = await readFile("dist/notes/pedal-response-bench-note/index.html", "utf8");
   const visibleArticle = article.split('<script id="published-content"')[0];
   assert.ok(visibleArticle.replace(/<[^>]+>/g, "").includes("const normalized") && visibleArticle.includes('id="scope"'), "Markdown is pre-rendered, not just a JSON payload");
