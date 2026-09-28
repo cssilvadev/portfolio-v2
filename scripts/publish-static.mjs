@@ -4,6 +4,7 @@ import { createServer } from "vite";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+if (Number(process.versions.node.split(".")[0]) < 22) throw new Error("Static publication requires Node.js 22.12+ (Node 24 is recommended). The public Supabase SDK needs native WebSocket support.");
 const server = await createServer({ envDir: false, server: { middlewareMode: true }, appType: "custom" });
 const output = path.resolve("dist");
 const escape = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));

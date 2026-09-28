@@ -29,6 +29,7 @@ Publishing in the CMS updates the running app, but **new slugs need a new Pages 
 ## Static publication
 
 `npm run build` creates the Vite app and then runs `scripts/publish-static.mjs`.
+Use Node **24** (`.nvmrc` and GitHub Actions agree); the minimum is 22.12. The current Supabase SDK requires Node 22+ with native WebSocket support when imported during static publication. The previous client-only build did not exercise this server-side requirement.
 
 The generator queries only `published = true` CMS entries and translations for those entry IDs, using the same publishable client as the browser. If the CMS is unavailable, it warns and exports the existing local fallback. It never exports drafts, accounts or profiles. The manifest records which source was used.
 
