@@ -1,4 +1,5 @@
 .project-page { min-height: 100svh; padding: 120px 0 12vh; background: var(--bg); }
+.project-status { width: fit-content; color: var(--text-muted); font: .7rem var(--font-mono); border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: .55rem .75rem; border-radius: 999px; }
 .project-page-inner {
   width: min(100%, 1500px);
   margin: 0 auto;
@@ -87,6 +88,9 @@
   font: 400 0.72rem var(--font-mono);
 }
 .project-body, .project-specs { grid-column: 1 / -1; padding: clamp(5rem, 12vh, 9rem) 0; }
+.project-body summary { cursor: pointer; min-height: 44px; }
+.project-body summary h2 { display: inline; font-size: clamp(1.5rem, 3vw, 2.5rem); }
+.project-body summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 10px; border-radius: 4px; }
 .project-specs { border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent); }
 .project-body h2, .project-specs h2 {
   max-width: 950px;

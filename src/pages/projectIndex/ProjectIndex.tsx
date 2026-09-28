@@ -8,6 +8,7 @@ import { getAllLocalizedProjects } from "../../data/projects";
 import { getAssetUrl } from "../../utils/assets";
 import "./ProjectIndex.css";
 import { useScrollEntrance } from "../../hooks/useScrollEntrance";
+import { editorial, projectStatus } from "../../data/editorial";
 
 export default function ProjectIndex() {
   const { t, language } = useLanguage();
@@ -47,6 +48,7 @@ export default function ProjectIndex() {
             <div>
               <p>{t.projects.indexIntro}</p>
               <Link className="project-editorial-link" to="/notes">{t.nav.notes} <span aria-hidden="true">↗</span></Link>
+              <Link className="project-editorial-link" to="/lab">{editorial.lab[language]} <span aria-hidden="true">↗</span></Link>
             </div>
             <span>{String(allProjects.length).padStart(2, "0")}</span>
           </div>
@@ -84,6 +86,7 @@ export default function ProjectIndex() {
                     <span>{project.stack.slice(0, 3).join(" · ")}</span>
                   </div>
                   <h2>{project.title}</h2>
+                  <span className="project-status">{projectStatus(project.slug, language)}</span>
                   <p>{project.description}</p>
                 </Link>
                 </article>

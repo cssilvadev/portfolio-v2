@@ -3,6 +3,7 @@ import { FaCopy, FaCheck, FaInfoCircle, FaLightbulb, FaExclamationTriangle, FaFi
 import { getAssetUrl } from "../../utils/assets";
 import "./MarkdownRenderer.css";
 import { useLanguage } from "../../context/LanguageContext";
+import { extractHeadings } from "../../utils/headings";
 
 interface MarkdownRendererProps {
   content: string;
@@ -231,6 +232,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const { t } = useLanguage();
   const lines = content.split("\n");
   const elements: React.ReactNode[] = [];
+  const headings = new Map(extractHeadings(content).map(heading => [heading.line, heading]));
   let i = 0;
   let elementKey = 0;
 
@@ -328,7 +330,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     }
     if (line.startsWith("## ")) {
       const headingText = line.slice(3);
-      const slug = headingText.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const slug = headings.get(i)?.id;
       elements.push(
         <h2 key={elementKey++} id={slug} className="md-h2">
           {renderInline(headingText)}
@@ -338,7 +340,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       continue;
     }
     if (line.startsWith("### ")) {
-      elements.push(<h3 key={elementKey++} className="md-h3">{renderInline(line.slice(4))}</h3>);
+      elements.push(<h3 key={elementKey++} id={headings.get(i)?.id} className="md-h3">{renderInline(line.slice(4))}</h3>);
       i++;
       continue;
     }

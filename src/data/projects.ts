@@ -62,25 +62,25 @@ export const projects: Project[] = [
       { key: "mcu", value: "STM32F103" },
       { key: "interface", value: "USB HID · Custom Report Descriptor" },
       { key: "input", value: "3-axis ADC (Throttle/Brake/Clutch)" },
-      { key: "latency", value: "<1ms USB polling" },
+      { key: "latency", value: "End-to-end latency: measurement pending" },
     ],
     en: {
       title: "G27 Pedal Adapter",
       description: "Custom USB HID Pedal Adapter for Logitech hardware.",
       overview:
-        "Custom embedded USB HID adapter enabling standalone use of Logitech G27 racing pedals via USB on PC. Implements hardware ADC calibration, deadzone management, and zero-latency USB HID reporting on STM32.",
+        "Custom embedded USB HID adapter enabling standalone use of Logitech G27 racing pedals via USB on PC. Its architecture includes ADC calibration, deadzone management and USB HID reporting on STM32. End-to-end latency still needs a published measurement.",
     },
     pt: {
       title: "Adaptador Pedais G27",
       description: "Adaptador USB HID personalizado para pedais Logitech G27.",
       overview:
-        "Adaptador USB HID embarcado que permite usar os pedais de corrida Logitech G27 diretamente no PC via USB. Implementa calibração de ADC em hardware, gerenciamento de zona morta e envio USB HID de latência zero no STM32.",
+        "Adaptador USB HID embarcado para usar os pedais Logitech G27 diretamente no PC via USB. A arquitetura inclui calibração ADC, gerenciamento de zona morta e relatórios USB HID no STM32. A latência de ponta a ponta ainda precisa de medição publicada.",
     },
     es: {
       title: "Adaptador Pedales G27",
       description: "Adaptador USB HID personalizado para pedales Logitech G27.",
       overview:
-        "Adaptador USB HID integrado que permite el uso independiente de pedales Logitech G27 en PC vía USB. Implementa calibración ADC por hardware, gestión de zonas muertas y reporte USB HID con latencia cero en STM32.",
+        "Adaptador USB HID para usar pedales Logitech G27 directamente en PC. Su arquitectura incluye calibración ADC, zonas muertas y reportes USB HID en STM32. La latencia de extremo a extremo necesita una medición publicada.",
     },
   },
   {
@@ -118,7 +118,7 @@ export const projects: Project[] = [
     slug: "interactive-portfolio",
     date: "2025",
     image: "/projects/portfolio.svg",
-    stack: ["React", "TypeScript", "CSS", "Spline"],
+    stack: ["React", "TypeScript", "CSS", "Supabase"],
     specs: [
       { key: "frontend", value: "React 19 + TypeScript" },
       { key: "motion", value: "Scroll-driven robot assembly" },
@@ -216,7 +216,9 @@ export function getLocalizedProject(project: Project, lang: Language) {
     date: project.date,
     image: project.image,
     stack: project.stack,
-    specs: project.specs,
+    specs: project.specs.map(spec => spec.value === "End-to-end latency: measurement pending" ? { ...spec, value: {
+      en: "End-to-end latency: measurement pending", pt: "Latência de ponta a ponta: medição pendente", es: "Latencia de extremo a extremo: medición pendiente",
+    }[lang] } : spec),
     title: content.title,
     description: content.description,
     overview: content.overview,

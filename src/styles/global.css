@@ -146,3 +146,6 @@ button,
 [data-theme="light"] {
   --cursor-color: #000000;
 }
+.performance-diagnostics { position: fixed; right: 1rem; bottom: 1rem; z-index: 10000; width: min(340px, calc(100vw - 2rem)); padding: 1rem; border-radius: 14px; border: 1px solid var(--text-muted); background: var(--bg-soft); color: var(--text); font: .7rem/1.7 var(--font-mono); box-shadow: 0 8px 30px #0002; }
+.performance-diagnostics summary { cursor: pointer; min-height: 24px; }
+@media print { .performance-diagnostics { display: none; } }

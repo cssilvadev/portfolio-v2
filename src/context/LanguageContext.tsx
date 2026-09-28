@@ -9,9 +9,12 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
+export function LanguageProvider({ children, initialLanguage }: { children: ReactNode; initialLanguage?: Language }) {
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem("portfolio_lang") as Language | null;
+    if (initialLanguage) return initialLanguage;
+    if (typeof window === "undefined") return "en";
+    let saved: string | null = null;
+    try { saved = localStorage.getItem("portfolio_lang"); } catch { /* Browser storage is optional. */ }
     if (saved === "en" || saved === "pt" || saved === "es") {
       return saved;
     }
@@ -24,7 +27,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("portfolio_lang", lang);
+    try { localStorage.setItem("portfolio_lang", lang); } catch { /* Language switching still works. */ }
     document.documentElement.setAttribute("lang", lang);
   };
 

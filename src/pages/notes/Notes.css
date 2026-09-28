@@ -192,6 +192,8 @@
 
 .notes-index .notes-story { border-top: 0; }
 .notes-index .notes-intro { animation: notes-intro-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.notes-index .notes-intro { top: 120px; }
+@media (min-width: 900px) and (max-height: 850px) { .notes-index .notes-intro { position: relative; top: auto; } }
 .note-entrance { min-width: 0; }
 .note-entrance[data-scroll-ready] .note-card {
   opacity: var(--enter, 1);
@@ -205,3 +207,9 @@
   .notes-index .notes-intro { animation: none; }
   .note-entrance[data-scroll-ready] .note-card { opacity: 1; translate: none; transition: none; }
 }
+.notes-editorial-tools { display: grid; gap: .75rem; margin: 0 0 1.5rem; }
+.notes-editorial-tools :is(input, select) { min-height: 48px; width: 100%; border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 14px; padding: .8rem 1rem; color: var(--text); background: var(--bg-soft); font: .85rem var(--font-main, sans-serif); }
+.notes-editorial-links { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+.notes-editorial-links a { color: var(--text-muted); min-height: 44px; display: inline-flex; align-items: center; font-size: .8rem; text-underline-offset: 4px; }
+.notes-search-count, .note-format { color: var(--text-muted); font: .7rem var(--font-mono); }
+.note-format { width: 100%; }

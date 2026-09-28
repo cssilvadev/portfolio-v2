@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { notes as localNotes, type Note, type NoteCategory } from "../data/notes";
 import { projects as localProjects, type Project, type ProjectSpec } from "../data/projects";
 import { supabase } from "../lib/supabase";
+import { labNotes } from "../data/labNotes";
+import { readPublicSnapshot, type PublicSnapshot } from "../data/publicSnapshot";
 
 type CmsEntryRow = {
   id: string;
@@ -50,7 +52,9 @@ function safeSpecs(value: unknown): ProjectSpec[] {
   )).map((item) => ({ key: item.key, value: item.value }));
 }
 
-function buildCmsContent(entries: CmsEntryRow[], translations: CmsTranslationRow[]) {
+// Shared by the static publisher; it maps public entries only, never drafts.
+// eslint-disable-next-line react-refresh/only-export-components
+export function buildCmsContent(entries: CmsEntryRow[], translations: CmsTranslationRow[]) {
   const byEntry = new Map<string, CmsTranslationRow[]>();
   translations.forEach((translation) => {
     const current = byEntry.get(translation.entry_id) ?? [];
@@ -107,12 +111,26 @@ function buildCmsContent(entries: CmsEntryRow[], translations: CmsTranslationRow
       });
     }
   });
-  return { projects, notes };
+  const slugs = new Set(notes.map(note => note.slug));
+  // Correct legacy display claims without writing to the CMS. A USB polling
+  // interval is not an end-to-end latency measurement; the live home no longer
+  // uses Spline. All other CMS edits remain authoritative.
+  projects.forEach(project => {
+    if (project.slug === "interactive-portfolio") project.stack = project.stack.map(value => value === "Spline" ? "Supabase" : value);
+    if (project.slug !== "g27-pedal-adapter") return;
+    project.specs = project.specs.map(spec => spec.key === "latency" && /polling|<\s*1\s*ms|zero/i.test(spec.value)
+      ? { ...spec, value: "End-to-end latency: measurement pending" } : spec);
+    project.en.overview = project.en.overview.replace(/zero-latency/gi, "USB-scheduled");
+    project.pt.overview = project.pt.overview.replace(/de latência zero/gi, "agendado pelo USB");
+    project.es.overview = project.es.overview.replace(/con latencia cero/gi, "programado por USB");
+  });
+  return { projects, notes: [...labNotes.filter(note => !slugs.has(note.slug)), ...notes] };
 }
 
-export function ContentProvider({ children }: { children: ReactNode }) {
-  const [projects, setProjects] = useState(localProjects);
-  const [notes, setNotes] = useState(localNotes);
+export function ContentProvider({ children, initialContent }: { children: ReactNode; initialContent?: PublicSnapshot }) {
+  const [initial] = useState(() => initialContent ?? readPublicSnapshot());
+  const [projects, setProjects] = useState(initial?.projects ?? localProjects);
+  const [notes, setNotes] = useState(initial?.notes ?? localNotes);
   const [loading, setLoading] = useState(Boolean(supabase));
 
   const refreshContent = useCallback(async () => {

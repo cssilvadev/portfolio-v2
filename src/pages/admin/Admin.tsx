@@ -9,6 +9,7 @@ import { loadNoteBySlug, notes as localNotes } from "../../data/notes";
 import { projects as localProjects } from "../../data/projects";
 import { supabase } from "../../lib/supabase";
 import "./Admin.css";
+import { getNoteConnection, type NoteFormat } from "../../data/editorial";
 
 type CmsKind = "article" | "project" | "page";
 type CmsLanguage = "en" | "pt" | "es";
@@ -21,13 +22,15 @@ type Draft = {
   category: string;
   coverImage: string;
   tags: string;
+  noteFormat: NoteFormat;
+  relatedProjects: string;
   stack: string;
   specs: string;
   featured: boolean;
   published: boolean;
   translations: Record<CmsLanguage, TranslationDraft>;
 };
-type CmsEntry = Omit<Draft, "translations" | "id" | "tags" | "stack" | "specs"> & {
+type CmsEntry = Omit<Draft, "translations" | "id" | "tags" | "stack" | "specs" | "noteFormat" | "relatedProjects"> & {
   id: string;
   tags: string[];
   stack: string[];
@@ -62,6 +65,8 @@ function emptyDraft(): Draft {
     category: "Firmware & Embedded",
     coverImage: "",
     tags: "",
+    noteFormat: "article",
+    relatedProjects: "",
     stack: "",
     specs: "",
     featured: false,
@@ -91,7 +96,9 @@ function entryToDraft(entry: CmsEntry): Draft {
     dateLabel: entry.dateLabel,
     category: entry.category,
     coverImage: entry.coverImage,
-    tags: entry.tags.join(", "),
+    tags: entry.tags.filter(tag => !/^(format|project):/.test(tag)).join(", "),
+    noteFormat: getNoteConnection(entry.slug, entry.tags).format,
+    relatedProjects: getNoteConnection(entry.slug, entry.tags).projects.join(", "),
     stack: entry.stack.join(", "),
     specs: entry.specs.map((spec) => `${spec.key}: ${spec.value}`).join("\n"),
     featured: entry.featured,
@@ -195,6 +202,11 @@ export default function Admin() {
       setError("A visão geral em inglês é obrigatória para projetos.");
       return;
     }
+    const related = listFromText(draft.relatedProjects);
+    if (draft.kind === "article" && related.some(slug => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))) {
+      setError("Projetos relacionados devem usar slugs com letras minúsculas, números e hífens.");
+      return;
+    }
     setBusy(true);
     const { data: saved, error: saveError } = await supabase.from("cms_entries").upsert({
       ...(draft.id ? { id: draft.id } : {}),
@@ -203,7 +215,7 @@ export default function Admin() {
       date_label: draft.dateLabel.trim().slice(0, 32),
       category: draft.category.trim() || null,
       cover_image: draft.coverImage.trim() || null,
-      tags: listFromText(draft.tags),
+      tags: [...listFromText(draft.tags).filter(tag => !/^(format|project):/.test(tag)), ...(draft.kind === "article" ? [`format:${draft.noteFormat}`, ...(related.length ? related.map(slug => `project:${slug}`) : ["project:none"])] : [])],
       stack: listFromText(draft.stack),
       specs: specsFromText(draft.specs),
       featured: draft.featured,
@@ -304,6 +316,11 @@ export default function Admin() {
                 <label>Categoria<input value={draft.category} onChange={(event) => setDraft({ ...draft, category: event.target.value })} placeholder="Robotics" /></label>
                 <label>Imagem<input value={draft.coverImage} onChange={(event) => setDraft({ ...draft, coverImage: event.target.value })} placeholder="/projects/portfolio.svg" /></label>
                 <label>Tags<input value={draft.tags} onChange={(event) => setDraft({ ...draft, tags: event.target.value })} placeholder="React, TypeScript" /></label>
+                {draft.kind === "article" && <>
+                  <label>Formato editorial<select value={draft.noteFormat} onChange={event => setDraft({ ...draft, noteFormat: event.target.value as NoteFormat })}><option value="article">Artigo</option><option value="build-log">Diário de desenvolvimento</option><option value="bench-note">Nota de bancada</option></select></label>
+                  <label>Projetos relacionados (slugs, separados por vírgula)<input value={draft.relatedProjects} onChange={event => setDraft({ ...draft, relatedProjects: event.target.value })} placeholder="jarvis, humanoid-robot" /></label>
+                  <p>Depois de publicar um slug novo, execute o deploy no GitHub Actions para gerar sua página HTML, sitemap e RSS. Formatos e relações são salvos como tags reservadas; não é necessário migrar o banco.</p>
+                </>}
                 <label>Stack<input value={draft.stack} onChange={(event) => setDraft({ ...draft, stack: event.target.value })} placeholder="STM32, C" /></label>
                 <label className="admin-checkbox"><input type="checkbox" checked={draft.featured} onChange={(event) => setDraft({ ...draft, featured: event.target.checked })} /> Destaque</label>
                 <label className="admin-checkbox"><input type="checkbox" checked={draft.published} onChange={(event) => setDraft({ ...draft, published: event.target.checked })} /> Publicado</label>

@@ -5,10 +5,12 @@ export default defineConfig({
   plugins: [react()],
   base: "/portfolio-v2/",
   build: {
+    manifest: true,
     rollupOptions: {
       output: {
         manualChunks: {
-          react: ["react", "react-dom", "react-router-dom"],
+          react: ["react", "react-dom", "react-dom/client", "react-router-dom"],
+          supabase: ["@supabase/supabase-js"],
           icons: ["react-icons"],
         },
       },

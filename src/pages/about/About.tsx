@@ -3,6 +3,8 @@ import { getAssetUrl } from "../../utils/assets";
 import "./About.css";
 import { useRef } from "react";
 import { useScrollEntrance } from "../../hooks/useScrollEntrance";
+import { Link } from "react-router-dom";
+import { editorial } from "../../data/editorial";
 
 const cvAssets = import.meta.glob("/public/cv.pdf", {
   eager: true,
@@ -12,7 +14,7 @@ const cvAssets = import.meta.glob("/public/cv.pdf", {
 const cvUrl = cvAssets["/public/cv.pdf"];
 
 export default function About() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   useScrollEntrance(sectionRef);
 
@@ -69,6 +71,7 @@ export default function About() {
               </ul>
             </div>
 
+            <Link className="about-cv" to="/profile">{editorial.profile[language]} ↗</Link>
             {cvUrl && (
               <a className="about-cv" href={cvUrl} target="_blank" rel="noopener noreferrer">
                 {t.about.cvBtn}

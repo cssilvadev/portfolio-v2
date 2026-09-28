@@ -16,9 +16,10 @@ export default function Navbar() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(() => window.scrollY > 24);
+  const [isScrolled, setIsScrolled] = useState(() => typeof window !== "undefined" && window.scrollY > 24);
   const [activeSection, setActiveSection] = useState(() => hash.slice(1) || "home");
   const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "dark";
     try {
       return localStorage.getItem("theme") === "light" ? "light" : "dark";
     } catch {

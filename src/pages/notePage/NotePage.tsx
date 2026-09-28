@@ -9,23 +9,30 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useContent } from "../../context/ContentContext";
 import { getAssetUrl } from "../../utils/assets";
 import "./NotePage.css";
+import { extractHeadings } from "../../utils/headings";
+import { editorial } from "../../data/editorial";
+import { getAllLocalizedProjects } from "../../data/projects";
+import "../../components/ProjectStory/ProjectStory.css";
 
 export default function NotePage() {
   const { slug } = useParams();
   const { t, language } = useLanguage();
-  const { notes } = useContent();
+  const { notes, projects } = useContent();
   type ShareStatus = "idle" | "copying" | "copied" | "error";
   const [shareResult, setShareResult] = useState<{ key: string; status: ShareStatus }>({ key: "", status: "idle" });
   const shareTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const shareRequest = useRef(0);
   const progressRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLElement>(null);
-  const [note, setNote] = useState<LocalizedNote>();
+  const initialNote = getNoteBySlug(slug ?? "", language, notes);
+  const [note, setNote] = useState<LocalizedNote | undefined>(() => initialNote?.content ? initialNote : undefined);
   const noteKey = `${slug ?? ""}:${language}`;
   const shareStatus = shareResult.key === noteKey ? shareResult.status : "idle";
   const setShareStatus = (status: ShareStatus) => setShareResult({ key: noteKey, status });
-  const [loadedNoteKey, setLoadedNoteKey] = useState("");
+  const [loadedNoteKey, setLoadedNoteKey] = useState(() => initialNote?.content ? noteKey : "");
   const isLoading = loadedNoteKey !== noteKey;
+  const headings = extractHeadings(note?.content ?? "").filter(heading => heading.level === 2);
+  const relatedProjects = getAllLocalizedProjects(language, projects).filter(project => note?.relatedProjects.includes(project.slug));
 
   useEffect(() => {
     let active = true;
@@ -73,7 +80,10 @@ export default function NotePage() {
 
   // Scroll to top on page load
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
+    let target: HTMLElement | null = null;
+    try { target = document.getElementById(decodeURIComponent(window.location.hash.slice(1))); } catch { /* Malformed hashes are ignored. */ }
+    if (target) target.scrollIntoView({ behavior: "instant" });
+    else window.scrollTo({ top: 0, behavior: "instant" });
   }, [slug]);
 
   useEffect(() => {
@@ -176,6 +186,7 @@ export default function NotePage() {
               {/* NOTE HEADER */}
               <header className="note-article-header">
                 <div className="note-meta-badges">
+                  <span className="badge">{editorial[note.format][language]}</span>
                   <span className="badge category-badge">
                     <FaTag className="badge-icon" />
                     {getCategoryLabel(note.category)}
@@ -214,9 +225,19 @@ export default function NotePage() {
               )}
 
               {/* NOTE BODY */}
-              <article ref={articleRef} className="note-article-body">
-                <MarkdownRenderer content={note.content} />
-              </article>
+              <div className="note-reading-layout">
+                {headings.length > 1 && <aside className="note-toc">
+                  <nav aria-label={editorial.toc[language]}><p className="story-eyebrow">{editorial.toc[language]}</p>
+                    <ol>{headings.map(heading => <li key={heading.id}><a href={`#${heading.id}`}>{heading.title}</a></li>)}</ol>
+                  </nav>
+                </aside>}
+                <article ref={articleRef} className="note-article-body"><MarkdownRenderer content={note.content} /></article>
+              </div>
+              {relatedProjects.length > 0 && <section className="case-related">
+                <p className="story-eyebrow">{editorial.relatedProjects[language]}</p>
+                <div className="case-related-links">{relatedProjects.map(project => <Link key={project.slug} to={`/projects/${project.slug}`}><span>{project.title}</span><span aria-hidden="true">↗</span></Link>)}</div>
+                {slug === "pedal-response-bench-note" && <Link className="editorial-inline-link" to="/lab">{editorial.start[language]} ↗</Link>}
+              </section>}
 
               {/* FOOTER PREV / NEXT NAVIGATION */}
               <nav className="note-footer-nav">

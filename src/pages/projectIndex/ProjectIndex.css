@@ -181,3 +181,4 @@
   .project-index-card img, .project-index-image, .project-index-arrow,
   .project-index-card h2, .project-search input { transition: none; }
 }
+.project-index .project-status { display: inline-block; margin: .4rem 0; color: var(--text-muted); font: .7rem var(--font-mono); border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: .55rem .75rem; border-radius: 999px; }

@@ -49,6 +49,9 @@ jobs:
           VITE_CONTACT_FORM_ENDPOINT: ${{ secrets.VITE_CONTACT_FORM_ENDPOINT }}
         run: npm run build
 
+      - name: Validate static publication
+        run: npm run check:publication
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

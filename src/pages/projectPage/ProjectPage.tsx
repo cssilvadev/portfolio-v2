@@ -9,11 +9,15 @@ import { getAssetUrl } from "../../utils/assets";
 
 import "./ProjectPage.css";
 import { useScrollEntrance } from "../../hooks/useScrollEntrance";
+import ProjectStory from "../../components/ProjectStory/ProjectStory";
+import { editorial, projectStatus } from "../../data/editorial";
+import { getAllLocalizedNotes } from "../../data/notes";
 
 export default function ProjectPage() {
   const { slug } = useParams();
   const { t, language } = useLanguage();
-  const { projects } = useContent();
+  const { projects, notes } = useContent();
+  const relatedNotes = getAllLocalizedNotes(language, notes).filter(note => note.relatedProjects.includes(slug ?? ""));
 
   const project = slug ? getProjectBySlug(slug, language, projects) : undefined;
   const mainRef = useRef<HTMLElement>(null);
@@ -56,6 +60,7 @@ export default function ProjectPage() {
             <>
               <header className="project-header">
                 <p className="project-kicker">{t.projects.title} / {project.date}</p>
+                <span className="project-status">{projectStatus(project.slug, language)}</span>
                 <h1>{project.title}</h1>
                 <p className="project-desc">{project.description}</p>
               </header>
@@ -79,10 +84,11 @@ export default function ProjectPage() {
                 </ul>
               </section>
 
-              <section className="project-body" data-scroll-enter>
-                <h2>{t.projects.overview}</h2>
+              <ProjectStory key={project.slug} slug={project.slug} language={language} />
+              <details className="project-body">
+                <summary><h2>{t.projects.overview}</h2></summary>
                 <p>{project.overview}</p>
-              </section>
+              </details>
 
               {project.specs.length > 0 && (
                 <section className="project-specs" data-scroll-enter>
@@ -97,6 +103,12 @@ export default function ProjectPage() {
                   </dl>
                 </section>
               )}
+              {relatedNotes.length > 0 && <section className="case-related" data-scroll-enter>
+                <p className="story-eyebrow">{editorial.related[language]}</p>
+                <div className="case-related-links">{relatedNotes.map(note => <Link key={note.slug} to={`/notes/${note.slug}`}>
+                  <span>{note.title}</span><span aria-hidden="true">↗</span>
+                </Link>)}</div>
+              </section>}
               <footer className="project-continuation" data-scroll-enter>
                 {nextProject && (
                   <Link to={`/projects/${nextProject.slug}`} className="project-next">

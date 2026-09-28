@@ -307,7 +307,7 @@
 .note-article-title {
   max-width: 1150px;
   margin-bottom: 2rem;
-  font-size: clamp(3.3rem, 7vw, 8rem);
+  font-size: clamp(2.6rem, 5.3vw, 5.4rem);
   font-weight: 600;
   line-height: 0.96;
   letter-spacing: -0.075em;
@@ -327,4 +327,17 @@
   .note-page-inner { padding-inline: 7vw; }
   .note-article-header { min-height: 75svh; padding: 4rem 0; }
   .note-article-title { font-size: clamp(2.8rem, 11vw, 5rem); }
+}
+/* Reading stays calm: section navigation, not cinematic scroll effects. */
+.note-reading-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+.note-toc { padding: 1.5rem; border: 1px solid color-mix(in srgb, var(--text) 15%, transparent); border-radius: 18px; }
+.note-toc ol { display: grid; gap: .5rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.note-toc a { color: var(--text-muted); display: inline-flex; align-items: center; min-height: 36px; font-size: .8rem; line-height: 1.5; text-decoration: none; }
+.note-toc a:hover, .note-toc a:focus-visible { color: var(--accent); }
+.note-article-body :is(h2, h3) { scroll-margin-top: 120px; }
+@media (min-width: 1250px) {
+  .note-page:has(.note-toc) .note-page-inner { max-width: 1160px; }
+  .note-reading-layout:has(.note-toc) { grid-template-columns: 220px minmax(0, 1fr); gap: 3rem; }
+  .note-toc { align-self: start; position: sticky; top: 120px; max-height: calc(100svh - 150px); overflow: auto; }
+  .note-reading-layout .note-article-body { margin-top: 0; }
 }

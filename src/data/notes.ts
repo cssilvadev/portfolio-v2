@@ -1,4 +1,7 @@
 import type { Language } from "../i18n/translations";
+import { labNotes } from "./labNotes";
+import { getNoteConnection, type NoteFormat } from "./editorial";
+import { getAssetUrl } from "../utils/assets";
 
 export type NoteCategory =
   | "Firmware & Embedded"
@@ -26,6 +29,7 @@ export type Note = {
 };
 
 export const notes: Note[] = [
+  ...labNotes,
   {
     slug: "stm32-can-bus-architecture",
     date: "2026-08",
@@ -137,6 +141,8 @@ export const notes: Note[] = [
 ];
 
 export type LocalizedNote = {
+  format: NoteFormat;
+  relatedProjects: string[];
   slug: string;
   title: string;
   excerpt: string;
@@ -160,9 +166,11 @@ const contentLoaders: Record<string, () => Promise<NoteContentModule>> = {
 
 export function getLocalizedNote(note: Note, lang: Language): LocalizedNote {
   const noteContent = note[lang] || note.en;
+  const connection = getNoteConnection(note.slug, note.tags);
   return {
+    format: connection.format, relatedProjects: connection.projects,
     slug: note.slug, title: noteContent.title, excerpt: noteContent.excerpt, content: noteContent.content,
-    date: note.date, readingTime: note.readingTime, category: note.category, tags: note.tags,
+    date: note.date, readingTime: noteContent.content ? estimateReadingTime(noteContent.content) : note.readingTime, category: note.category, tags: note.tags.filter(tag => !/^(format|project):/.test(tag)),
     coverImage: note.coverImage, featured: note.featured,
   };
 }
@@ -180,11 +188,29 @@ export function getNoteBySlug(slug: string, lang: Language = "en", source: Note[
 export async function loadNoteBySlug(slug: string, lang: Language = "en", source: Note[] = notes): Promise<LocalizedNote | undefined> {
   const localized = getNoteBySlug(slug, lang, source);
   if (!localized) return undefined;
-  if (localized.content) return localized;
+  if (localized.content) return { ...localized, readingTime: estimateReadingTime(localized.content) };
+  // If the CMS is unavailable after a static load, keep published article
+  // navigation working from the site's own build snapshot. No private API.
+  if (typeof window !== "undefined" && source !== notes && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(localized.slug)) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    try {
+      const response = await fetch(getAssetUrl(`/content/${localized.slug}.json`), { signal: controller.signal });
+      if (response.ok && response.headers.get("content-type")?.includes("json")) {
+        const article = await response.json() as Note;
+        if (article.slug === localized.slug && typeof article[lang]?.content === "string" && article[lang].content) {
+          const published = getLocalizedNote(article, lang);
+          return { ...published, readingTime: estimateReadingTime(published.content) };
+        }
+      }
+    } catch { /* Fall back to the local lazy article, if one exists. */ }
+    finally { clearTimeout(timer); }
+  }
   const loader = contentLoaders[localized.slug];
   if (!loader) return localized;
   const content = await loader();
-  return { ...localized, content: content.noteContent[lang] || content.noteContent.en };
+  const body = content.noteContent[lang] || content.noteContent.en;
+  return { ...localized, content: body, readingTime: estimateReadingTime(body) };
 }
 
 export function getAllLocalizedNotes(lang: Language = "en", source: Note[] = notes): LocalizedNote[] {

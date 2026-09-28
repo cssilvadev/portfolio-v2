@@ -6,13 +6,16 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useContent } from "../../context/ContentContext";
 import "./Notes.css";
 import { useScrollEntrance } from "../../hooks/useScrollEntrance";
+import { editorial, type NoteFormat } from "../../data/editorial";
 
 export default function Notes({ standalone = false }: { standalone?: boolean }) {
   const { t, language } = useLanguage();
   const { notes } = useContent();
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<string>("all");
+  const [query, setQuery] = useState("");
+  const [format, setFormat] = useState<NoteFormat | "all">("all");
   const sectionRef = useRef<HTMLElement>(null);
-  useScrollEntrance(sectionRef, `${selectedCategoryKey}:${language}:${notes.map((note) => note.slug).join(",")}`);
+  useScrollEntrance(sectionRef, `${selectedCategoryKey}:${query}:${format}:${language}:${notes.map((note) => note.slug).join(",")}`);
   const Title = standalone ? "h1" : "h2";
   const NoteTitle = standalone ? "h2" : "h3";
 
@@ -26,10 +29,15 @@ export default function Notes({ standalone = false }: { standalone?: boolean }) 
 
   const currentOption = categoryOptions.find((c) => c.key === selectedCategoryKey);
   const localizedNotes = getAllLocalizedNotes(language, notes);
-  const filteredNotes =
+  const categoryNotes =
     !currentOption || currentOption.key === "all"
       ? localizedNotes
       : localizedNotes.filter((n) => n.category === currentOption.category);
+  const matchingNotes = categoryNotes.filter(note => (!standalone || (format === "all" || note.format === format)) &&
+    (!standalone || `${note.title} ${note.excerpt} ${note.tags.join(" ")}`.toLocaleLowerCase(language).includes(query.trim().toLocaleLowerCase(language))));
+  const filteredNotes = standalone ? matchingNotes : [...matchingNotes].sort((a, b) =>
+    Number(b.slug === "jarvis-local-ai-hud") - Number(a.slug === "jarvis-local-ai-hud") || Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || b.date.localeCompare(a.date),
+  ).slice(0, 3);
 
   // Helper to translate category badge
   const getCategoryLabel = (cat: NoteCategory): string => {
@@ -58,6 +66,17 @@ export default function Notes({ standalone = false }: { standalone?: boolean }) 
           </p>
 
           <div className="notes-filter-bar">
+            {standalone && <div className="notes-editorial-tools">
+              <label className="sr-only" htmlFor="notes-search">{editorial.search[language]}</label>
+              <input id="notes-search" type="search" value={query} placeholder={editorial.search[language]} onChange={event => setQuery(event.target.value)} />
+              <label className="sr-only" htmlFor="notes-format">{editorial.allFormats[language]}</label>
+              <select id="notes-format" value={format} onChange={event => setFormat(event.target.value as NoteFormat | "all")}>
+                <option value="all">{editorial.allFormats[language]}</option>
+                {(["article", "build-log", "bench-note"] as const).map(value => <option key={value} value={value}>{editorial[value][language]}</option>)}
+              </select>
+              <div className="notes-editorial-links"><Link to="/lab">{editorial.lab[language]} ↗</Link><a href={`${import.meta.env.BASE_URL}feed.xml`}>RSS ↗</a></div>
+              <p role="status" className="notes-search-count">{filteredNotes.length} / {localizedNotes.length}</p>
+            </div>}
             <div className="category-pills">
               {categoryOptions.map((cat) => (
                 <button
@@ -73,14 +92,15 @@ export default function Notes({ standalone = false }: { standalone?: boolean }) 
             </div>
 
           </div>
+          {!standalone && <div className="notes-editorial-links"><Link to="/notes">{editorial.browseNotes[language]} ↗</Link></div>}
         </div>
 
         <div className="notes-grid">
           {filteredNotes.length === 0 && (
             <div className="notes-empty" role="status">
-              <p>{t.notes.emptyCategory}</p>
-              <button type="button" className="category-pill" onClick={() => setSelectedCategoryKey("all")}>
-                {t.notes.categories.all}
+              <p>{standalone ? editorial.noResults[language] : t.notes.emptyCategory}</p>
+              <button type="button" className="category-pill" onClick={() => { setSelectedCategoryKey("all"); setQuery(""); setFormat("all"); }}>
+                {standalone ? editorial.clearFilters[language] : t.notes.categories.all}
               </button>
             </div>
           )}
@@ -88,6 +108,7 @@ export default function Notes({ standalone = false }: { standalone?: boolean }) 
             <div key={note.slug} className="note-entrance" data-scroll-enter={standalone ? "" : undefined}>
             <article className="note-card">
               <div className="note-card-top">
+                {standalone && <span className="note-format">{editorial[note.format][language]}</span>}
                 <span className="note-number">{String(index + 1).padStart(2, "0")}</span>
                 <span className="note-category-badge">
                   <FaTag className="badge-icon" aria-hidden="true" />
