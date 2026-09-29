@@ -31,3 +31,7 @@ dist
 # Local safety copies made before large refactors
 backups/
 
+# Internal security/privacy runbooks are kept outside the public repository
+/PRIVACY_OPERATIONS.md
+/SECURITY_INTERNAL.md
+
