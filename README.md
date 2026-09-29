@@ -2,6 +2,8 @@
 
 React 19 + Vite + TypeScript portfolio, deployed under `/portfolio-v2/` on GitHub Pages.
 
+**Permanent cost policy:** keep this portfolio free for its owner and visitors. Do not activate Stripe, paid plans, metered billing, add-ons, credit-card trials, or any other paid feature. See [AGENTS.md](./AGENTS.md). Existing billing code is dormant legacy preparation, not a launch plan.
+
 ## Local development
 
 ```bash
@@ -15,27 +17,16 @@ The development-only Note Studio is available at `/studio`. It is excluded from 
 
 Without a configured endpoint, contact explicitly opens the visitor's email app; no non-functional form is shown. To enable Formspree after reviewing privacy/abuse settings, set `VITE_CONTACT_FORM_ENDPOINT` to `https://formspree.io/f/<form-id>`. Only that validated processor is accepted. The browser sends bounded fields using `FormData` with `Accept: application/json`; no secret key is stored in the site.
 
-## Authentication and billing
+## Authentication
 
-The project includes a Supabase Auth + Postgres RLS foundation and optional Stripe billing. Passwords are handled by Supabase Auth; the portfolio never receives or stores password hashes. The browser only receives the Supabase publishable/anon key, while Stripe and the Supabase service-role key stay inside Edge Functions.
+The project includes a Supabase Auth + Postgres RLS foundation. Passwords are handled by Supabase Auth; the portfolio never receives or stores password hashes. The browser only receives the Supabase publishable/anon key. Existing Stripe code and Edge Functions are not enabled under the free-only policy.
 
 1. Create or select a Supabase project, copy `.env.example` to `.env`, and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 2. Run [`supabase_schema.sql`](./supabase_schema.sql) in the Supabase SQL editor.
 3. In Supabase Auth, enable email/password, configure email confirmation, and add the deployed URL plus its callback URL to the allowed redirect URLs. For this static GitHub Pages build, use `https://cssilvadev.github.io/portfolio-v2/`.
-4. Create Stripe Products and Prices. Update `billing_plans.stripe_price_id`, `price_cents`, `currency`, and `active = true` only after checking the values in Stripe.
-5. Deploy the functions and set secrets without the `VITE_` prefix:
+4. Review the production abuse controls: Auth rate limits, CAPTCHA for sign-up/sign-in/password reset, email confirmation and the server-side password policy. Public signup still needs working SMTP for visitors; the default Supabase sender does not deliver to arbitrary addresses. Choose only a provider whose free tier and account requirements fit the cost rule. Leaked-password protection is a paid Supabase setting and must remain disabled.
 
-   ```bash
-   supabase secrets set SUPABASE_SERVICE_ROLE_KEY=... STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... RATE_LIMIT_SALT=... APP_ORIGIN=https://cssilvadev.github.io APP_URL=https://cssilvadev.github.io/portfolio-v2
-   supabase functions deploy create-checkout-session
-   supabase functions deploy stripe-webhook
-   ```
-
-6. Add a Stripe webhook for `https://<project-ref>.supabase.co/functions/v1/stripe-webhook` and subscribe to `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.updated`, and `customer.subscription.deleted`.
-
-Keep `VITE_ENABLE_BILLING=false` and server `BILLING_ENABLED` unset until integration/replay/refund tests are complete. These instructions are preparation, not confirmation of live billing. Match the webhook API version to `2025-08-27.basil`; the webhook gateway must accept Stripe requests without a Supabase JWT, while the function requires the Stripe signature. Never put secrets into the browser or chat.
-
-7. In Supabase Auth, review the production abuse controls before opening registration: set the Auth rate limits, enable CAPTCHA/Turnstile or hCaptcha for sign-up, sign-in, and password reset, require email confirmation, and enable the strongest password policy available for the project. Supabase already rate-limits its Auth endpoints; the custom checkout function additionally limits each authenticated user and best-effort client IP to five attempts per minute. Leaked-password protection is a Supabase Auth setting and may require a paid plan.
+Never put secrets into the browser bundle, repository, or chat. Keep `VITE_ENABLE_BILLING=false` and server `BILLING_ENABLED` unset under the permanent free-only policy.
 
 ### Admin CMS
 
@@ -51,7 +42,7 @@ After signing in, open `/admin` and use **Importar conteúdo atual** once to mig
 
 The admin permissions are enforced by Postgres RLS, not only by hiding a route in React. The `private.is_admin()` function is used only inside policies, and visitors can read only published content. This follows Supabase's guidance to combine Auth with RLS and to keep security-definer functions isolated and tightly granted ([RLS guidance](https://supabase.com/docs/guides/database/postgres/row-level-security), [database functions](https://supabase.com/docs/guides/database/functions)).
 
-The client cannot grant itself a plan: plan visibility is controlled by RLS, checkout prices are read server-side, and entitlements are written only by the signed webhook using idempotency records. Until the plan rows, secrets, functions, and webhook are configured, checkout intentionally fails closed.
+The client cannot grant itself a plan: plan visibility is controlled by RLS. The dormant checkout implementation fails closed and must not be activated for this free-only portfolio.
 
 For maximum session isolation, the next deployment evolution would be an SSR/BFF layer with HttpOnly cookies. GitHub Pages itself is a static host, so this version uses Supabase's browser session flow and keeps all privileged operations server-side.
 
@@ -62,6 +53,8 @@ The build pre-renders known public routes, exports article content, RSS and site
 ## Security and privacy operations
 
 See [SECURITY.md](./SECURITY.md) for implemented defenses, MFA migration order, server-side Auth/CAPTCHA settings, host limitations and billing gates. See [PRIVACY_OPERATIONS.md](./PRIVACY_OPERATIONS.md) for retention/provider/rights decisions still required. Public registration is preserved. `/privacy/` explains the current implementation in English, Portuguese and Spanish; it does not certify LGPD compliance.
+
+Run `npm run check:live-security` for a read-only check of anonymous access on the published Supabase API. It does not create users, modify content or inspect account records; authenticated-user and MFA checks remain separate.
 
 Apply `supabase/migrations/202609280001_security_hardening.sql` to an existing project **after** publishing and enrolling the administrator's authenticator. This repository change does not apply migrations or provider settings remotely. GitHub Pages gets CSP via HTML meta, not unsupported custom response headers.
 
