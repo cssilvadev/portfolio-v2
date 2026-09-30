@@ -70,9 +70,16 @@ async function verifyTurnstile(token: string, secret: string, hostname: string) 
     body,
     signal: AbortSignal.timeout(10000),
   });
-  if (!response.ok) return false;
+  if (!response.ok) return { ok: false, reason: "siteverify-http", status: response.status };
   const result = await response.json();
-  return result?.success === true && result?.action === "contact" && result?.hostname === hostname;
+  if (result?.success !== true) return {
+    ok: false,
+    reason: "token-rejected",
+    errorCodes: Array.isArray(result?.["error-codes"]) ? result["error-codes"].filter((code: unknown) => typeof code === "string").slice(0, 5) : [],
+  };
+  if (result?.action !== "contact") return { ok: false, reason: "action-mismatch", action: result?.action ?? null };
+  if (result?.hostname !== hostname) return { ok: false, reason: "hostname-mismatch", hostname: result?.hostname ?? null };
+  return { ok: true as const };
 }
 
 async function sendWithBrevo(input: ReturnType<typeof parseContactPayload> & { kind: "message" }, apiKey: string, sender: string, recipient: string) {
@@ -146,8 +153,11 @@ Deno.serve(async (request) => {
 
   const hostname = new URL(origin).hostname;
   try {
-    const verified = await verifyTurnstile(parsed.value.turnstileToken, turnstileSecret, hostname);
-    if (!verified) return json({ error: "Security check failed" }, 400, origin);
+    const verification = await verifyTurnstile(parsed.value.turnstileToken, turnstileSecret, hostname);
+    if (!verification.ok) {
+      console.warn("Turnstile rejected contact request", verification);
+      return json({ error: "Security check failed" }, 400, origin);
+    }
     const sent = await sendWithBrevo(parsed, brevoApiKey, sender, recipient);
     if (!sent) return json({ error: "Message delivery failed" }, 502, origin);
     return json({ sent: true }, 200, origin);
