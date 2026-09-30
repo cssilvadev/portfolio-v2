@@ -15,7 +15,9 @@ The development-only Note Studio is available at `/studio`. It is excluded from 
 
 ## Contact form
 
-Without a configured endpoint, contact explicitly opens the visitor's email app; no non-functional form is shown. To enable Formspree after reviewing privacy/abuse settings, set `VITE_CONTACT_FORM_ENDPOINT` to `https://formspree.io/f/<form-id>`. Only that validated processor is accepted. The browser sends bounded fields using `FormData` with `Accept: application/json`; no secret key is stored in the site.
+The contact form uses a Supabase Edge Function, Cloudflare Turnstile, a server-side hashed-IP rate limit and Brevo's transactional email API. Message bodies are delivered by email and are not written to the portfolio database. Until the backend is deployed and configured, keep `VITE_CONTACT_FORM_ENABLED=false`; the site then offers a direct email link and copy-email fallback.
+
+To activate it, create a Turnstile widget for `cssilvadev.github.io`, verify a sender in Brevo, and set these Supabase Edge Function secrets in the Supabase dashboard (never in Git or chat): `BREVO_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`, `CONTACT_TURNSTILE_SECRET_KEY`, and a new random `CONTACT_RATE_LIMIT_SALT` with at least 32 characters. Supabase provides `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to functions. Deploy `send-contact-message`, then set GitHub repository variable `VITE_TURNSTILE_SITE_KEY` to the widget's public site key and `VITE_CONTACT_FORM_ENABLED` to `true`. Only enable the public form after a real end-to-end delivery test. Keep all services on their free plans; Brevo's Free plan currently includes 300 email sends/day and Supabase Free includes 500,000 Edge Function invocations/month. Quotas can change; never enable paid overages.
 
 ## Authentication
 

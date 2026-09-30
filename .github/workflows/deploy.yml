@@ -44,7 +44,7 @@ jobs:
 
       - name: Build
         env:
-          VITE_CONTACT_FORM_ENDPOINT: ${{ secrets.VITE_CONTACT_FORM_ENDPOINT }}
+          VITE_CONTACT_FORM_ENABLED: ${{ vars.VITE_CONTACT_FORM_ENABLED }}
           VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
         run: npm run build
 
@@ -60,7 +60,8 @@ jobs:
 
       - name: Type-check server functions
         run: |
-          deno check --frozen --config supabase/functions/deno.json supabase/functions/create-checkout-session/index.ts supabase/functions/stripe-webhook/index.ts
+          deno check --frozen --config supabase/functions/deno.json supabase/functions/create-checkout-session/index.ts supabase/functions/stripe-webhook/index.ts supabase/functions/send-contact-message/index.ts
+          deno test --frozen --config supabase/functions/deno.json supabase/functions/_shared/contact_test.ts
           deno audit --lock=supabase/functions/deno.lock
 
       - name: Validate static publication

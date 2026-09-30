@@ -27,7 +27,7 @@ function loadTurnstile() {
 }
 
 /** Loads only inside an auth dialog when the owner supplies a public site key. */
-export default function Captcha({ siteKey, resetKey, onToken }: { siteKey: string; resetKey: number; onToken: (token: string | undefined) => void }) {
+export default function Captcha({ siteKey, resetKey, onToken, action }: { siteKey: string; resetKey: number; onToken: (token: string | undefined) => void; action?: string }) {
   const container = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
   const { language } = useLanguage();
@@ -40,13 +40,13 @@ export default function Captcha({ siteKey, resetKey, onToken }: { siteKey: strin
       if (!active || !container.current) return;
       api = loaded;
       widget = api.render(container.current, {
-        sitekey: siteKey, size: "flexible", theme: "auto", language,
+        sitekey: siteKey, size: "flexible", theme: "auto", language, ...(action ? { action } : {}),
         callback: (token: string) => { if (active) { setFailed(false); onToken(token); } },
         "expired-callback": () => { if (active) onToken(undefined); },
         "error-callback": () => { if (active) { setFailed(true); onToken(undefined); } },
       });
     }).catch(() => { if (active) setFailed(true); });
     return () => { active = false; if (api && widget) api.remove(widget); };
-  }, [siteKey, resetKey, onToken, language]);
+  }, [siteKey, resetKey, onToken, language, action]);
   return <div className="auth-captcha"><div ref={container} />{failed && <p role="alert">{text("The security challenge is unavailable. Close and reopen this dialog to retry.", "A verificação de segurança está indisponível. Feche e reabra esta janela para tentar novamente.", "La verificación de seguridad no está disponible. Cierra y vuelve a abrir esta ventana.")[language]}</p>}</div>;
 }
