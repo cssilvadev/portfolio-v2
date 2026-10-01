@@ -16,6 +16,7 @@ export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollEntrance(sectionRef);
   const [formState, setFormState] = useState<FormState>("idle");
+  const [formError, setFormError] = useState<"captcha" | "unavailable" | "delivery">("delivery");
   const [emailCopyState, setEmailCopyState] = useState<"idle" | "copied" | "error">("idle");
   const [captchaToken, setCaptchaToken] = useState<string>();
   const [captchaReset, setCaptchaReset] = useState(0);
@@ -43,9 +44,9 @@ export default function Contact() {
     const formData = new FormData(form);
     if (formData.get("website")) return;
     const fields = Object.fromEntries(["firstName", "lastName", "email", "message"].map(key => [key, String(formData.get(key) ?? "").trim()])) as { firstName: string; lastName: string; email: string; message: string };
-    if (!validContactFields(fields)) { setFormState("error"); return; }
-    if (!supabase || !captchaSiteKey) { setFormState("error"); return; }
-    if (!captchaToken) { setFormState("error"); return; }
+    if (!validContactFields(fields)) { setFormError("delivery"); setFormState("error"); return; }
+    if (!supabase || !captchaSiteKey) { setFormError("unavailable"); setFormState("error"); return; }
+    if (!captchaToken) { setFormError("captcha"); setFormState("error"); return; }
 
     requestLock.current = true;
     setFormState("sending");
@@ -61,6 +62,7 @@ export default function Contact() {
       form.reset();
       setFormState("success");
     } catch {
+      setFormError("delivery");
       setFormState("error");
     } finally {
       requestLock.current = false;
@@ -128,7 +130,7 @@ export default function Contact() {
             {formState === "rateLimited" && copy.rateLimited}
             {formState === "error" && (
               <>
-                {!captchaSiteKey ? copy.captchaUnavailable : !captchaToken ? copy.captchaRequired : t.contact.sendError}{" "}
+                {formError === "unavailable" ? copy.captchaUnavailable : formError === "captcha" ? copy.captchaRequired : t.contact.sendError}{" "}
                 <a href="mailto:christiansilva.dev@outlook.com">{t.contact.emailFallback}</a>
               </>
             )}

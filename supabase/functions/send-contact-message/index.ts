@@ -70,8 +70,18 @@ async function verifyTurnstile(token: string, secret: string, hostname: string) 
     body,
     signal: AbortSignal.timeout(10000),
   });
-  if (!response.ok) return { ok: false, reason: "siteverify-http", status: response.status };
-  const result = await response.json();
+  let result: Record<string, unknown>;
+  try {
+    result = await response.json();
+  } catch {
+    return { ok: false, reason: "siteverify-http", status: response.status, errorCodes: [] };
+  }
+  if (!response.ok) return {
+    ok: false,
+    reason: "siteverify-http",
+    status: response.status,
+    errorCodes: Array.isArray(result?.["error-codes"]) ? result["error-codes"].filter((code: unknown) => typeof code === "string").slice(0, 5) : [],
+  };
   if (result?.success !== true) return {
     ok: false,
     reason: "token-rejected",
@@ -118,7 +128,7 @@ Deno.serve(async (request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const rateLimitSalt = Deno.env.get("CONTACT_RATE_LIMIT_SALT") ?? "";
-  const turnstileSecret = Deno.env.get("CONTACT_TURNSTILE_SECRET_KEY") ?? "";
+  const turnstileSecret = (Deno.env.get("CONTACT_TURNSTILE_SECRET_KEY") ?? "").trim();
   const brevoApiKey = Deno.env.get("BREVO_API_KEY") ?? "";
   const sender = Deno.env.get("CONTACT_FROM_EMAIL") ?? "";
   const recipient = Deno.env.get("CONTACT_TO_EMAIL") ?? "";
