@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaBars, FaCrown, FaMoon, FaSignOutAlt, FaSun, FaTimes, FaUser } from "react-icons/fa";
+import { FaBars, FaCrown, FaMoon, FaSearch, FaSignOutAlt, FaSun, FaTimes, FaUser } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { FlagIcon, FlagBR, FlagUS, FlagES } from "../Flags/Flags";
@@ -8,6 +8,7 @@ import type { Language } from "../../i18n/translations";
 import "./NavBar.css";
 import { billingEnabled } from "../../lib/securityConfig";
 import { useStoragePreferences } from "../../context/StoragePreferencesContext";
+import SearchPalette from "../SearchPalette/SearchPalette";
 
 export default function Navbar() {
   const { pathname, hash } = useLocation();
@@ -17,6 +18,7 @@ export default function Navbar() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(() => typeof window !== "undefined" && window.scrollY > 24);
   const [activeSection, setActiveSection] = useState(() => hash.slice(1) || "home");
   const navRef = useRef<HTMLElement>(null);
@@ -84,6 +86,20 @@ export default function Navbar() {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    const openSearch = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== "k" || (!event.ctrlKey && !event.metaKey) || event.altKey) return;
+      if (!isSearchOpen && document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+      event.preventDefault();
+      setIsSearchOpen(open => !open);
+      setIsMenuOpen(false);
+      setShowLangMenu(false);
+      setShowUserMenu(false);
+    };
+    document.addEventListener("keydown", openSearch);
+    return () => document.removeEventListener("keydown", openSearch);
+  }, [isSearchOpen]);
+
   const closeMenu = () => {
     setIsMenuOpen(false);
     setShowLangMenu(false);
@@ -121,18 +137,6 @@ export default function Navbar() {
     <a className="skip-link" href="#main-content">{t.nav.skipContent}</a>
     <nav ref={navRef} className={`navbar ${isMenuOpen ? "menu-open" : ""} ${isScrolled ? "is-scrolled" : ""}`}>
       <Link to="/" className="logo" onClick={() => handleNavigation("/")}>CS</Link>
-
-      <button
-        ref={menuButtonRef}
-        type="button"
-        className="menu-toggle"
-        aria-label={isMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
-        aria-expanded={isMenuOpen}
-        aria-controls="primary-navigation"
-        onClick={() => setIsMenuOpen((open) => !open)}
-      >
-        {isMenuOpen ? <FaTimes aria-hidden="true" /> : <FaBars aria-hidden="true" />}
-      </button>
 
       <div id="primary-navigation" className="nav-drawer">
         <ul className="nav-links">
@@ -223,7 +227,22 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      <button type="button" className="nav-search-trigger" onClick={() => { closeMenu(); setIsSearchOpen(true); }} aria-label={{ en: "Search site", pt: "Buscar no site", es: "Buscar en el sitio" }[language]} title={{ en: "Search · Ctrl K", pt: "Buscar · Ctrl K", es: "Buscar · Ctrl K" }[language]} aria-keyshortcuts="Control+K Meta+K" aria-haspopup="dialog" aria-expanded={isSearchOpen}>
+        <FaSearch aria-hidden="true" />
+      </button>
+      <button
+        ref={menuButtonRef}
+        type="button"
+        className="menu-toggle"
+        aria-label={isMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
+        aria-expanded={isMenuOpen}
+        aria-controls="primary-navigation"
+        onClick={() => setIsMenuOpen((open) => !open)}
+      >
+        {isMenuOpen ? <FaTimes aria-hidden="true" /> : <FaBars aria-hidden="true" />}
+      </button>
     </nav>
+    {isSearchOpen && <SearchPalette onClose={() => setIsSearchOpen(false)} />}
     </>
   );
 }
